@@ -74,10 +74,10 @@ class WolverPong(pygame.sprite.Sprite):
         if(changeDirection ==-1):
             self.theta -= self.speed
             
-        if(self.theta >= 270):
-            self.theta = 270
-        if(self.theta <= 90):
-            self.theta = 90
+        if(self.theta >= 360):
+            self.theta = 00
+        #if(self.theta <= 90):
+         #   self.theta = 90
             
         #print self.theta
         self.angle  = float(self.theta) #- float(self.batdimx/213)
@@ -132,17 +132,11 @@ class RayPong(pygame.sprite.Sprite):
         
         if(changeDirection ==1):
             self.theta += self.speed
-            if(self.theta > 90 and self.theta < 265):
-                self.theta = 90
-            if(self.theta > 360):
-                self.theta -= 360
             
         if(changeDirection ==-1):
             self.theta -= self.speed
-            if(self.theta <0):
-                self.theta += 360
-            if(self.theta < 270 and self.theta > 95):
-                self.theta = 270
+        if(self.theta >= 360):
+            self.theta = 00
             
             
             
@@ -369,7 +363,7 @@ def main():
                 
             Collide = False
                     
-        
+        print rayPong.rect[3],"---------------------"
         Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
         
            
