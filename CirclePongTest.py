@@ -156,7 +156,7 @@ class FireBall(pygame.sprite.Sprite):
         super(FireBall,self).__init__()
          
         # Create the image of the ball
-        self.image = pygame.image.load("ball.png")
+        self.image = pygame.image.load("./data/ball.png")
          
         
          
