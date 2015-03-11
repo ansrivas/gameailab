@@ -27,13 +27,13 @@ class Color():
         pass
 
 
-class WolverPong(pygame.sprite.Sprite):
-    def __init__(self,wolverPongdimension,speed):
+class Pong(pygame.sprite.Sprite):
+    def __init__(self,pongdimension,speed,batimagepath):
         pygame.sprite.Sprite.__init__(self)
       
         self.color = color
         #self.width = width
-        self.image = pygame.Surface(wolverPongdimension).convert()
+        self.image = pygame.Surface(pongdimension).convert()
         self.image.fill((255,0,0))
         self.image.set_colorkey((255,0,0))
         
@@ -42,9 +42,9 @@ class WolverPong(pygame.sprite.Sprite):
         self.angle = 1
         self.theta =  90 
         self.speed = speed
-        self.batdimx, self.batdimy = wolverPongdimension
+        self.batdimx, self.batdimy = pongdimension
         
-        self.image = pygame.image.load("./data/rWolverGamePONG.png")
+        self.image = pygame.image.load(batimagepath)
         if(debug):
             pygame.draw.rect(self.image, self.color, (self.x,self.y,self.batdimx, self.batdimy ), self.width)
         self.rot = pygame.transform.rotate(self.image,self.angle )
@@ -76,86 +76,18 @@ class WolverPong(pygame.sprite.Sprite):
             
         if(self.theta >= 360):
             self.theta = 00
-        #if(self.theta <= 90):
-         #   self.theta = 90
-            
-        #print self.theta
+
         self.angle  = float(self.theta) #- float(self.batdimx/213)
-        #print self.angle
+
         self.rot = pygame.transform.rotate(self.image,self.angle)
         self.rect = self.rot.get_rect()
         self.rect.center = self.findPointOnCircle(self.theta)
         screen.blit(self.rot,self.rect)
         
-class RayPong(pygame.sprite.Sprite):
-    def __init__(self,rayPongdimension,speed):
-        pygame.sprite.Sprite.__init__(self)
-      
-        self.color = color
-        #self.width = width
-        self.image = pygame.Surface(rayPongdimension)
-        self.image.fill((0,0,0))
-        self.image.set_colorkey((0,0,0))
-        
-        self.x= 0
-        self.y =0
-        self.angle = 1
-        self.theta =  0 
-       
-        self.speed = speed
-        self.batdimx, self.batdimy = rayPongdimension
-        
-        self.image = pygame.image.load("./data/RayGamePONG.png")
-        if(debug):
-            pygame.draw.rect(self.image, self.color, (self.x,self.y,self.batdimx, self.batdimy ), self.width)
-        self.rot = pygame.transform.rotate(self.image,self.angle )
-        
-        self.rect = self.rot.get_rect()
-        
-        self.rect.center = (266,266)
-        
-        
-        
-    def findPointOnCircle(self,deg):
-        """
-        Give an angle in degrees and we will get a corresponding point on circle w.r.t to this angle in clockwise.
-        """
-        rad = np.deg2rad(deg)
-        y = (SCREEN_H/2) - 320 * math.sin(rad)
-        x = (SCREEN_W/2) + 320 * math.cos(rad)
-        
-        return int(x),int(y)
-    
-    
-    def update(self,changeDirection):
-        global screen
-        
-        if(changeDirection ==1):
-            self.theta += self.speed
-            
-        if(changeDirection ==-1):
-            self.theta -= self.speed
-        if(self.theta >= 360):
-            self.theta = 00
-            
-            
-            
-        #if(self.theta < 270):
-            #self.theta = 270
-        #if(self.theta > 90):
-            #self.theta = 90
-        '''if self.theta == 360:
-            self.theta = 0
-        if self.theta < 0:
-            self.theta += 360'''
-            
-        
-        self.angle  = float(self.theta) #- float(self.batdimx/213)
-        #print self.angle
-        self.rot = pygame.transform.rotate(self.image,self.angle)
-        self.rect = self.rot.get_rect()
-        self.rect.center = self.findPointOnCircle(self.theta)
-        screen.blit(self.rot,self.rect)
+
+
+
+
         
 class FireBall(pygame.sprite.Sprite):
     def __init__(self,ballDimension,imageName):
@@ -284,11 +216,13 @@ def main():
     #backg = bg.CBackground((SCREEN_W/2, SCREEN_H/2+100),320,5,color.palegreen)
     
     # WolverPONG Call Function
-    wolverPong = WolverPong((50,120),2) 
+    wolverpongimage = "./data/rWolverGamePONG.png"
+    wolverPong = Pong((50,120),2,wolverpongimage) 
     WolverchangeDirection = 0
     
     # RayPONG Call Function
-    rayPong = RayPong((50,120),2) 
+    rayPongimage = "./data/RayGamePONG.png"
+    rayPong = Pong((50,120),2,rayPongimage) 
     RaychangeDirection = 0
     
     # FireBall Call Function
