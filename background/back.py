@@ -7,10 +7,10 @@ class CBackground():
         self.color = color
         self.myimage = pygame.image.load("./data/bg4.png")
         self.imagerect = self.myimage.get_rect()
-        self.imagerect.x,self.imagerect.y = (320, 160)
+        self.imagerect.x,self.imagerect.y = (360,640)
         self.x,self.y = self.imagerect.center
          
-        
+        self.x, self.y = (x,y)
     def update(self,screen):
         #screen.blit(self.myimage, self.imagerect)
         #use it to produce game-over effects for few seconds

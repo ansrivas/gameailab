@@ -60,9 +60,10 @@ class Pong(pygame.sprite.Sprite):
         Give an angle in degrees and we will get a corresponding point on circle w.r.t to this angle in clockwise.
         """
         rad = np.deg2rad(deg)
+             
         y = (SCREEN_H/2) - 320 * math.sin(rad)
         x = (SCREEN_W/2) + 320 * math.cos(rad)
-        
+            
         return int(x),int(y)
     
     
@@ -95,7 +96,7 @@ class FireBall(pygame.sprite.Sprite):
         super(FireBall,self).__init__()
          
         # Create the image of the ball
-        self.image = pygame.image.load("./data/pongball.png")
+        self.image = pygame.image.load(imageName)
          
         
          
@@ -213,7 +214,7 @@ def main():
     calculate = refcol.CReflectCollid()
     
     #TODO: need to fix this function here
-    #backg = bg.CBackground((SCREEN_W/2, SCREEN_H/2+100),320,5,color.palegreen)
+    backg = bg.CBackground((SCREEN_W/2, SCREEN_H/2),320,5,color.palegreen)
     
     # WolverPONG Call Function
     wolverpongimage = "./data/rWolverGamePONG.png"
@@ -226,7 +227,8 @@ def main():
     RaychangeDirection = 0
     
     # FireBall Call Function
-    fireBall = FireBall((28,29),'ball.png')
+    ballimage = "./data/pongball.png"
+    fireBall = FireBall((28,29), ballimage)
     balls = pygame.sprite.Group()
     balls.add(fireBall)
     
@@ -279,13 +281,14 @@ def main():
                         
         
         screen.blit(background,(0,0))
-        screen.fill(Color.white)   
+        screen.fill(Color.white)  
+        backg.update(screen)  
         wolverPong.update(WolverchangeDirection)
         rayPong.update(RaychangeDirection)
         fireBall.update() 
         
         #TODO: update this background implementation
-        #backg.update(screen) 
+        
         
         # See if the ball hits the player paddle
         
@@ -297,7 +300,7 @@ def main():
                 
             Collide = False
                     
-        print rayPong.rect[3],"---------------------"
+    
         Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
         
            
