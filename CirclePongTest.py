@@ -6,12 +6,25 @@ import math
 import numpy as np
 from pygame.locals import *
 from astropy.coordinates.distances import Distance
- 
+from database import db
+from Reflection import reflectcollide as refcol
+from background import back as bg
+
 # Constants 
 N = 1000
 SCREEN_W, SCREEN_H = (1280, 720)
 debug = False
 screen = pygame.display.set_mode((SCREEN_W,SCREEN_H))
+
+class Color():
+    white=(255,255,255)
+    blue = (0,255,255)
+    red = (255,0,0)
+    snow = (205,201,201)
+    palegreen= (152,251,152)
+
+    def __init__(self):
+        pass
 
 
 class WolverPong(pygame.sprite.Sprite):
@@ -156,7 +169,7 @@ class FireBall(pygame.sprite.Sprite):
         super(FireBall,self).__init__()
          
         # Create the image of the ball
-        self.image = pygame.image.load("./data/ball.png")
+        self.image = pygame.image.load("./data/pongball.png")
          
         
          
@@ -257,41 +270,10 @@ class FireBall(pygame.sprite.Sprite):
         screen.blit(self.image,self.rect)
         
         
-        
-def checkCollide(ballx,bally,batx,baty,batAngle,batLength):
-    
-    #Distance between the ball and the bat
-    distance = math.hypot( ( ballx - batx ) , ( bally - baty) )
-    
-    #If distance is atleast l/2
-    if( distance <= batLength/2.0):
-        angle = math.atan2( ( bally - baty) , ( ballx - batx) ) - batAngle - np.pi/2.0
-        
-        #If true then collision
-        condition = np.abs( (batAngle + np.pi ) - angle ) * (batLength/np.pi)
-        if ( distance <= condition ):
-            # Collision has occured
-            return True
-    
-    return False
-        
-def reflectAngle(ballx,bally,batx,baty,batAngle):    
-    
-    #to find the incidence angle w.r.t to bat
-    incidence_angle = batAngle + np.pi - math.atan2( ( bally - baty) , ( ballx - batx) )
-    
-    #Reflectance angle w.r.t bat
-    reflectance_angle = np.pi - incidence_angle
-    
-    #Change the perspective of the reflectance angle w.r.t to real world.
-    new_angle = batAngle + reflectance_angle 
-    
-    print new_angle
-        
-    return new_angle
  
 def main():
     # basic start
+    global SCREEN_H,SCREEN_W
     pygame.init()
     
     pygame.display.set_caption('Galactic Pong')
@@ -299,6 +281,13 @@ def main():
     
     back = pygame.Surface((SCREEN_W,SCREEN_H))
     background = back.convert()
+    color = Color()
+    
+    #class which calculates the collision and reflection
+    calculate = refcol.CReflectCollid()
+    
+    #TODO: need to fix this function here
+    #backg = bg.CBackground((SCREEN_W/2, SCREEN_H/2+100),320,5,color.palegreen)
     
     # WolverPONG Call Function
     wolverPong = WolverPong((50,120),2) 
@@ -362,28 +351,31 @@ def main():
                         
         
         screen.blit(background,(0,0))
-           
+        screen.fill(Color.white)   
         wolverPong.update(WolverchangeDirection)
         rayPong.update(RaychangeDirection)
         fireBall.update() 
         
+        #TODO: update this background implementation
+        #backg.update(screen) 
+        
         # See if the ball hits the player paddle
         
-        Collide = checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
+        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
         
         if Collide:             
                  
-            fireBall.angle = reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle))              
+            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle))              
                 
             Collide = False
                     
         
-        Collide = checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
+        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
         
            
         if Collide:
            
-            fireBall.angle = reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
+            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
             
             Collide = False
         
@@ -404,4 +396,6 @@ def main():
         
         
  
-if __name__ == '__main__': main()
+if __name__ == '__main__': 
+    main()
+#    data = db.Data()
