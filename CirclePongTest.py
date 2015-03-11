@@ -13,8 +13,10 @@ from background import back as bg
 # Constants 
 N = 1000
 SCREEN_W, SCREEN_H = (1280, 720)
-debug = False
+debug = True
 screen = pygame.display.set_mode((SCREEN_W,SCREEN_H))
+MULTIPLAYER = False
+
 
 class Color():
     white=(255,255,255)
@@ -31,7 +33,7 @@ class Pong(pygame.sprite.Sprite):
     def __init__(self,pongdimension,speed,batimagepath):
         pygame.sprite.Sprite.__init__(self)
       
-        self.color = color
+        self.color = Color.red
         #self.width = width
         self.image = pygame.Surface(pongdimension).convert()
         self.image.fill((255,0,0))
@@ -46,7 +48,8 @@ class Pong(pygame.sprite.Sprite):
         
         self.image = pygame.image.load(batimagepath)
         if(debug):
-            pygame.draw.rect(self.image, self.color, (self.x,self.y,self.batdimx, self.batdimy ), self.width)
+            self.originalrect = pygame.draw.rect(self.image, self.color, (self.x,self.y,self.batdimx, self.batdimy ), 1)
+        
         self.rot = pygame.transform.rotate(self.image,self.angle )
         
         self.rect = self.rot.get_rect()
@@ -73,10 +76,15 @@ class Pong(pygame.sprite.Sprite):
         if(changeDirection ==1):
             self.theta += self.speed
         if(changeDirection ==-1):
-            self.theta -= self.speed
+            if(self.theta>= 0):
+                self.theta -=self.speed
+            if(self.theta<0):
+                self.theta = 360- self.speed
             
         if(self.theta >= 360):
             self.theta = 00
+        
+ 
 
         self.angle  = float(self.theta) #- float(self.batdimx/213)
 
@@ -84,9 +92,8 @@ class Pong(pygame.sprite.Sprite):
         self.rect = self.rot.get_rect()
         self.rect.center = self.findPointOnCircle(self.theta)
         screen.blit(self.rot,self.rect)
-        
-
-
+        #print "self.rect =",self.rect
+        #print "self.rect.center",self.rect.center
 
 
         
@@ -221,11 +228,12 @@ def main():
     wolverPong = Pong((50,120),2,wolverpongimage) 
     WolverchangeDirection = 0
     
-    # RayPONG Call Function
-    rayPongimage = "./data/RayGamePONG.png"
-    rayPong = Pong((50,120),2,rayPongimage) 
-    RaychangeDirection = 0
-    
+    if(MULTIPLAYER):
+        # RayPONG Call Function
+        rayPongimage = "./data/RayGamePONG.png"
+        rayPong = Pong((50,120),2,rayPongimage) 
+        RaychangeDirection = 0
+        
     # FireBall Call Function
     ballimage = "./data/pongball.png"
     fireBall = FireBall((28,29), ballimage)
@@ -234,7 +242,8 @@ def main():
     
     movingsprites = pygame.sprite.Group()
     movingsprites.add(wolverPong)
-    movingsprites.add(rayPong)
+    if(MULTIPLAYER):
+        movingsprites.add(rayPong)
     movingsprites.add(fireBall)
 
     Collide = False
@@ -284,7 +293,8 @@ def main():
         screen.fill(Color.white)  
         backg.update(screen)  
         wolverPong.update(WolverchangeDirection)
-        rayPong.update(RaychangeDirection)
+        if(MULTIPLAYER):
+            rayPong.update(RaychangeDirection)
         fireBall.update() 
         
         #TODO: update this background implementation
@@ -293,23 +303,23 @@ def main():
         # See if the ball hits the player paddle
         
         Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
-        
+        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),120)
         if Collide:             
                  
             fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle))              
                 
             Collide = False
                     
-    
-        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
-        
-           
-        if Collide:
-           
-            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
+        if(MULTIPLAYER):
+            Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
             
-            Collide = False
-        
+               
+            if Collide:
+               
+                fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
+                
+                Collide = False
+            
                 
                 
         
