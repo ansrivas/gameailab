@@ -10,7 +10,7 @@ class CReflectCollid():
         distance = math.hypot( ( ballx - batx ) , ( bally - baty) )
         
         #If distance is atleast l/2
-        if( distance <= batLength/2.0):
+        if( distance <= batLength/3.0):
             angle = math.atan2( ( bally - baty) , ( ballx - batx) ) - batAngle - np.pi/2.0
             
             #If true then collision
