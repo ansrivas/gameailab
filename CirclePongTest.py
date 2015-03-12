@@ -117,9 +117,9 @@ class FireBall(pygame.sprite.Sprite):
         self.screenwidth = pygame.display.get_surface().get_width()
          
         # Speed in pixels per cycle
-        self.speedx = 3
+        self.speedx = 7
         
-        self.speedy = 3
+        self.speedy = 7
         # Floating point representation of where the ball is
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
@@ -138,8 +138,8 @@ class FireBall(pygame.sprite.Sprite):
     def reset(self):
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
-        self.speedx=3
-        self.speedy=3
+        self.speedx=7
+        self.speedy=7
         self.angle = random.uniform(0,2*math.pi)
         #self.angle = 0
  
@@ -209,6 +209,7 @@ class FireBall(pygame.sprite.Sprite):
 def main():
     # basic start
     global SCREEN_H,SCREEN_W
+    ignoreCollide = 0
     pygame.init()
     
     pygame.display.set_caption('Galactic Pong')
@@ -301,32 +302,42 @@ def main():
         #TODO: update this background implementation
         
         
-        # See if the ball hits the player paddle
-        
-        #Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
-        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),120,fireBall.angle)
-        if Collide:             
-                 
-            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),fireBall.angle)              
-                
-            Collide = False
-                    
-        if(MULTIPLAYER):
-            Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
+        #If collided, dont check for collision for next few iterations
+        if (ignoreCollide==0):
             
-               
-            if Collide:
-               
-                fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
-                
+            # See if the ball hits the player paddle
+            
+            #Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
+            Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),120,fireBall.angle)
+            if Collide:             
+                     
+                fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),fireBall.angle)              
+                ignoreCollide = 20    
                 Collide = False
-            
                         
+            if(MULTIPLAYER):
+                Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
+                
+                   
+                if Collide:
+                   
+                    fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
+                    
+                    Collide = False
+                
+                    
+                    
+            
+           
+            
+            
+            
         
-    
         pygame.display.flip()
         clock.tick(100)
-                    
+        if (ignoreCollide > 0):
+            ignoreCollide -= 1
+                
                     
         
         

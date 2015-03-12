@@ -7,7 +7,7 @@ class CReflectCollid():
     def checkCollide(self,ballx,bally,batx,baty,batAngle,batLength,ballAngle):
     
         
-        batLength = batLength + 28                                          #should also consider balls boundaries to check for collision
+        batLength = batLength #+ 28                                          #should also consider balls boundaries to check for collision
         distance = math.hypot( ( ballx - batx ) , ( bally - baty) )         #Distance between the ball and the bat
         
         
