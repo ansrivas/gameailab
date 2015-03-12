@@ -125,8 +125,8 @@ class FireBall(pygame.sprite.Sprite):
         self.y = SCREEN_H/2
          
         # Direction of ball in degrees
-        self.angle = -math.pi/4
-        
+        self.angle = np.pi/4.0
+        self.angle = random.uniform(0,2*math.pi)
         
          
         
@@ -141,6 +141,7 @@ class FireBall(pygame.sprite.Sprite):
         self.speedx=3
         self.speedy=3
         self.angle = random.uniform(0,2*math.pi)
+        #self.angle = 0
  
         '''# Direction of ball (in degrees)
         self.direction = random.randrange(-45,45)
@@ -183,7 +184,7 @@ class FireBall(pygame.sprite.Sprite):
          
         # Change the position (x and y) according to the speed and direction
         self.x += math.cos(self.angle) * self.speedx
-        self.y += math.sin(self.angle) * self.speedy
+        self.y -= math.sin(self.angle) * self.speedy
         
         
         
@@ -302,11 +303,11 @@ def main():
         
         # See if the ball hits the player paddle
         
-        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
-        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),120)
+        #Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),wolverPong.rect[3])                 
+        Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),120,fireBall.angle)
         if Collide:             
                  
-            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle))              
+            fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,wolverPong.rect.centerx,wolverPong.rect.centery,np.deg2rad(wolverPong.angle),fireBall.angle)              
                 
             Collide = False
                     
@@ -320,12 +321,7 @@ def main():
                 
                 Collide = False
             
-                
-                
-        
-       
-        
-        
+                        
         
     
         pygame.display.flip()
@@ -338,5 +334,8 @@ def main():
         
  
 if __name__ == '__main__': 
+    
+    
+    
     main()
 #    data = db.Data()
