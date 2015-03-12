@@ -4,34 +4,43 @@ class CReflectCollid():
     def __init__(self):
         pass
     
-    def checkCollide(self,ballx,bally,batx,baty,batAngle,batLength):
+    def checkCollide(self,ballx,bally,batx,baty,batAngle,batLength,ballAngle):
     
-        #Distance between the ball and the bat
-        distance = math.hypot( ( ballx - batx ) , ( bally - baty) )
         
-        #If distance is atleast l/2
-        if( distance <= batLength/3.0):
-            angle = math.atan2( ( bally - baty) , ( ballx - batx) ) - batAngle - np.pi/2.0
+        batLength = batLength + 28                                          #should also consider balls boundaries to check for collision
+        distance = math.hypot( ( ballx - batx ) , ( bally - baty) )         #Distance between the ball and the bat
+        
+        
+        if( distance <= batLength/2.0):                                             #If distance is atleast l/2 w.r.t center of the bat
             
-            #If true then collision
-            condition = np.abs( (batAngle + np.pi ) - angle ) * (batLength/np.pi)
+            angle = ballAngle - batAngle + np.pi/2.0
+            angle = self.CheckAngle(angle)
+            
+            condition = np.abs( (batAngle + np.pi ) - angle ) * (batLength/np.pi)   #If true then collision
+            
+            
             if ( distance <= condition ):
-                # Collision has occured
-                return True
+
+                return True                     # Collision has occured
         
         return False
         
-    def reflectAngle(self,ballx,bally,batx,baty,batAngle):    
+    def reflectAngle(self,ballx,bally,batx,baty,batAngle,ballAngle):    
         
-        #to find the incidence angle w.r.t to bat
-        incidence_angle = batAngle + np.pi - math.atan2( ( bally - baty) , ( ballx - batx) )
         
-        #Reflectance angle w.r.t bat
-        reflectance_angle = np.pi - incidence_angle
+        incidence_angle = ballAngle - batAngle + np.pi/2.0                 #to find the incidence angle w.r.t to bat
+        #incidence_angle = self.CheckAngle(incidence_angle)
         
-        #Change the perspective of the reflectance angle w.r.t to real world.
-        new_angle = batAngle + reflectance_angle 
+        reflectance_angle = np.pi - incidence_angle                         #Reflectance angle w.r.t bat
+        #reflectance_angle = self.CheckAngle(reflectance_angle)
         
-        print new_angle
-            
+        new_angle = batAngle + reflectance_angle  + np.pi/2.0               #Change the perspective of the reflectance angle w.r.t to real world.
+        new_angle = self.CheckAngle(new_angle)
+        
         return new_angle
+    
+    def CheckAngle(self,angle):
+        if not( 0 < angle < (2.0*np.pi) ):
+            factor = math.floor(angle / (2.0*np.pi))
+            return (angle + (np.pi*(-2.0)*factor))
+        return angle
