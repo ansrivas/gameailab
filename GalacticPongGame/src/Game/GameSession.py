@@ -176,6 +176,9 @@ class FireBall(pygame.sprite.Sprite):
         return player,BallsLeft
 
     def increasespeed(self):
+        '''just increase the speed a bit after a 
+        successful rally, so as to increase hardness
+        '''
         self.speedx += 0.005
         self.speedy += 0.005
         
@@ -396,23 +399,20 @@ def game(screen,SCREEN_H,SCREEN_W):
                         
                     elif event.key == pygame.K_d:
                         WolverchangeDirection = -1
-                        
+                    
+                    if event.key == pygame.K_LEFT:
+                        RaychangeDirection = 1
+                    
+                    elif event.key == pygame.K_RIGHT:
+                        RaychangeDirection = -1
+                              
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         WolverchangeDirection = 0
                         
                     elif event.key == pygame.K_d:
                         WolverchangeDirection = 0
-                        
-                ''' RayPONG MOVEMENTS - LEFT,RIGHT'''
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        RaychangeDirection = 1
-                        
-                    elif event.key == pygame.K_RIGHT:
-                        RaychangeDirection = -1
-                        
-                elif event.type == pygame.KEYUP:
+
                     if event.key == pygame.K_LEFT:
                         RaychangeDirection = 0
                         
