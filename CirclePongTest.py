@@ -15,7 +15,7 @@ N = 1000
 SCREEN_W, SCREEN_H = (1280, 720)
 debug = True
 screen = pygame.display.set_mode((SCREEN_W,SCREEN_H))
-MULTIPLAYER = False
+MULTIPLAYER = True
 
 
 class Color():
@@ -316,13 +316,13 @@ def main():
                 Collide = False
                         
             if(MULTIPLAYER):
-                Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),rayPong.rect[3])  
+                Collide = calculate.checkCollide(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),120,fireBall.angle)  
                 
                    
                 if Collide:
                    
-                    fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle))
-                    
+                    fireBall.angle = calculate.reflectAngle(fireBall.rect.centerx,fireBall.rect.centery,rayPong.rect.centerx,rayPong.rect.centery,np.deg2rad(rayPong.angle),fireBall.angle)
+                    ignoreCollide = 20 
                     Collide = False
                 
                     
