@@ -3,6 +3,7 @@ import random
 import numpy as np
 import math
 from Reflection import reflectcollide as refcol
+from Game import GameOver
 import time
 
 # Sound Initialization
@@ -144,7 +145,7 @@ class FireBall(pygame.sprite.Sprite):
         
     def reset(self,SCREEN_H,SCREEN_W,player,BallsLeft):
         
-        sounds[3].play()
+        
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
         self.speedx=2.0
@@ -391,7 +392,7 @@ def game(screen,SCREEN_H,SCREEN_W):
     sounds[0].set_volume(0.3)
     
     # Number of Balls Left
-    BallsLeft = 10
+    BallsLeft = 1
         
     # If collided once, dont check for the next n iterations
     ignoreCollide = 0
@@ -574,7 +575,18 @@ def game(screen,SCREEN_H,SCREEN_W):
                 ignoreCollide -= 1
             # GameOver    
             if(BallsLeft == 0):
-                running = False
+                sounds[0].stop()
+                if(wolverScore > rayScore):
+                    winner = 1
+                elif(rayScore > wolverScore):
+                    winner = -1
+                else:
+                    winner = 0    
+                GameOver.gameOver(screen, SCREEN_H, SCREEN_W,winner)
+                sounds[0].play()
+                BallsLeft = 1
+                wolverScore = 0
+                rayScore = 0
                             
         
         main.render_score_circles()
