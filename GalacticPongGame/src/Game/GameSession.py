@@ -442,7 +442,10 @@ def game(screen,SCREEN_H,SCREEN_W):
     main.delay3seconds( wolverScore=0, rayScore=0, ballsleft=0,st=st)
 
     while running:
-        clock.tick(100) 
+        #clock.tick(100)
+        time_passed = clock.tick(300)
+        time_sec = time_passed / 1000.0
+     
         # Change value if single player
         if not main.MULTIPLAYER:
             player = 1    
@@ -611,6 +614,7 @@ def game(screen,SCREEN_H,SCREEN_W):
         main.renderfonts(wolverScore,rayScore,BallsLeft) 
   
         pygame.display.flip()
+        clock.tick(100)
 
             
             
