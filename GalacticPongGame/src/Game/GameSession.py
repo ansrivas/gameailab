@@ -16,6 +16,7 @@ sounds.append(pygame.mixer.Sound('./data/GameBackground.wav'))
 sounds.append(pygame.mixer.Sound('./data/BallHit1.wav'))
 sounds.append(pygame.mixer.Sound('./data/BallHit2.wav'))
 sounds.append(pygame.mixer.Sound('./data/BallOut1.wav'))
+sounds.append(pygame.mixer.Sound('./data/hitball.wav'))
 
 # Set Screen Width and Screen Height 
 SCREEN_W, SCREEN_H = (1280, 720)
@@ -382,9 +383,34 @@ class CMain():
     def render_stop_screen(self):
         stopRender = self.font2.render("Game Stopped: press Space Bar to restart", True,(205,205,205))
         self.screen.blit(stopRender,(380.,100.)) 
+ 
+ 
+ 
+BallsLeft = 10
+ignoreCollide = 0
+wolverScore = 0
+rayScore = 0
+WolverchangeDirection = 0
+RaychangeDirection = 0
+Collide = False  
+
+def global_param_reset(): 
+    '''
+    this function will reset all the parameters which are being used in main game loop
+    '''
+    global BallsLeft,ignoreCollide,wolverScore,rayScore,WolverchangeDirection ,RaychangeDirection,Collide
+    BallsLeft = 10
+    ignoreCollide = 0
+    wolverScore = 0
+    rayScore = 0
+    WolverchangeDirection = 0
+    RaychangeDirection = 0
+    Collide = False  
         
 def game(screen,SCREEN_H,SCREEN_W):
  
+    global BallsLeft,ignoreCollide,wolverScore,rayScore,WolverchangeDirection ,RaychangeDirection,Collide
+     
     main = CMain(screen, SCREEN_H,SCREEN_W)
     main.initgame()
     #class which calculates the collision and reflection
@@ -392,7 +418,7 @@ def game(screen,SCREEN_H,SCREEN_W):
 
     # Play Background Music
     sounds[0].play()
-    sounds[0].set_volume(0.3)
+    sounds[0].set_volume(0.2)
     
     # Number of Balls Left
     BallsLeft = 10
@@ -454,15 +480,8 @@ def game(screen,SCREEN_H,SCREEN_W):
                     if event.key == pygame.K_r:
                         if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED):   
                             main.gamestate = CGameState.RESET 
-                            '''should move all these variables as class members, too lazy !!!
-                            anyways, resetting all the params here'''
-                            BallsLeft = 10
-                            ignoreCollide = 0
-                            wolverScore = 0
-                            rayScore = 0
-                            WolverchangeDirection = 0
-                            RaychangeDirection = 0
-                            Collide = False
+
+                            global_param_reset()
                             main.wolverPong.resetbat(180)
                             main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
                             if(main.MULTIPLAYER):
@@ -479,14 +498,8 @@ def game(screen,SCREEN_H,SCREEN_W):
                     if event.key == pygame.K_s:
                         if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED ):
                             main.gamestate = CGameState.STOPPED
-                            BallsLeft = 10
-                            ignoreCollide = 0
-                            wolverScore = 0
-                            rayScore = 0
-                            WolverchangeDirection = 0
-                            RaychangeDirection = 0
-                            Collide = False
-                            
+
+                            global_param_reset()
                             main.wolverPong.resetbat(180)
                             main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
                             if(main.MULTIPLAYER):
@@ -545,7 +558,8 @@ def game(screen,SCREEN_H,SCREEN_W):
                         if Collide: 
                             # Increase Score by 1            
                             wolverScore += 1
-                            sounds[1].play()     
+                            #sounds[1].play()  
+                            sounds[4].play()   
                             main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),main.fireBall.angle)              
                             ignoreCollide = 20    
                             Collide = False
@@ -566,7 +580,8 @@ def game(screen,SCREEN_H,SCREEN_W):
                             if Collide:
                                 # Increase Score by 1
                                 rayScore += 1  
-                                sounds[2].play()
+                                #sounds[2].play()
+                                sounds[4].play()
                                 main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),main.fireBall.angle)
                                 ignoreCollide = 20 
                                 Collide = False
@@ -590,10 +605,7 @@ def game(screen,SCREEN_H,SCREEN_W):
                 '''
                 main.gamestate = CGameState.STOPPED
                 sounds[0].play()
-                BallsLeft = 1
-                wolverScore = 0
-                rayScore = 0
-                            
+                global_param_reset()         
         
         main.render_score_circles()
         main.renderfonts(wolverScore,rayScore,BallsLeft) 
@@ -603,5 +615,5 @@ def game(screen,SCREEN_H,SCREEN_W):
             
             
 
-'''if __name__ == "__main__":
-    game(screen,SCREEN_H,SCREEN_W)'''
+if __name__ == "__main__":
+    game(screen,SCREEN_H,SCREEN_W)
