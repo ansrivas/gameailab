@@ -3,7 +3,7 @@ import random
 import numpy as np
 import math
 from Reflection import reflectcollide as refcol
-
+import time
 
 # Sound Initialization
 pygame.mixer.init()
@@ -101,7 +101,12 @@ class Pong(pygame.sprite.Sprite):
         self.rect.center = self.findPointOnCircle(self.theta,screen,SCREEN_H,SCREEN_W)
         screen.blit(self.rot,self.rect)
  
-    def resetbat(self):
+    def resetbat(self,initialloc):
+        self.x= 0
+        self.y =0
+        self.angle = 1
+        self.theta =  initialloc 
+        self.speed = 2
         self.rect.center = (266,266)
        
 class FireBall(pygame.sprite.Sprite):
@@ -122,9 +127,9 @@ class FireBall(pygame.sprite.Sprite):
         self.screenwidth = pygame.display.get_surface().get_width()
          
         # Speed in pixels per cycle
-        self.speedx = 2.5
+        self.speedx = 2.0
         
-        self.speedy = 2.5
+        self.speedy = 2.0
         # Floating point representation of where the ball is
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
@@ -142,8 +147,8 @@ class FireBall(pygame.sprite.Sprite):
         sounds[3].play()
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
-        self.speedx=2.5
-        self.speedy=2.5
+        self.speedx=2.0
+        self.speedy=2.0
         self.angle = random.uniform(0,2*math.pi)
         player *= -1 
         BallsLeft -= 1
@@ -190,11 +195,10 @@ class CGameState():
         pass
     
 
-gamestate = CGameState.STOPPED
 
 class CMain():
     def __init__(self,screen, SCREEN_H,SCREEN_W):
-        self.gamestate = CGameState.PAUSED
+        self.gamestate = CGameState.RUNNING
         self.MULTIPLAYER= None
         self.screen = screen
         self.background = None
@@ -210,6 +214,7 @@ class CMain():
         self.stars = None
         self.font1 = None
         self.font2 = None
+        
         
     def initgame(self):
         self.MULTIPLAYER = True
@@ -335,8 +340,8 @@ class CMain():
         BallsLeftRender = self.font2.render("BALLS LEFT : "+str(ballsleft), True,(205,205,205))
         # Render HighScore
         HighScoreRender = self.font2.render("HIGHSCORE : ", True,(205,205,205))
-        screen.blit(wolverScoreRender,(188.,185.))
-        screen.blit(rayScoreRender,(1068.,185.)) 
+        self.screen.blit(wolverScoreRender,(188.,185.))
+        self.screen.blit(rayScoreRender,(1068.,185.)) 
         
         self.screen.blit(BallsLeftRender,(10.,10.)) 
         self.screen.blit(HighScoreRender,(1000.,10.)) 
@@ -350,10 +355,32 @@ class CMain():
         self.screen.blit(self.InnerWhite, (980,100,100,100))
         
  
+    def delay3seconds(self,wolverScore,rayScore,ballsleft,st):
+        i = 3
+        while(i > 0):
+            self.blitstars()
+            self.render_score_circles()
+            self.renderfonts(wolverScore, rayScore, ballsleft)
+            secondsRender = self.font2.render(st+str(i), True,(205,205,205))
+            self.screen.blit(secondsRender,(525.,10.)) 
+            
+            pygame.display.flip()
+            time.sleep(1.)
+            i -=1
     
+    def reset_entire_gamestate(self):
+        pass
+            
+    def render_pause_screen(self):
+        pauseRender = self.font2.render("Game Paused: press Space Bar to resume", True,(205,205,205))
+        self.screen.blit(pauseRender,(380.,100.)) 
+
+    def render_stop_screen(self):
+        stopRender = self.font2.render("Game Stopped: press Space Bar to restart", True,(205,205,205))
+        self.screen.blit(stopRender,(380.,100.)) 
+        
 def game(screen,SCREEN_H,SCREEN_W):
-    global gamestate
-              
+ 
     main = CMain(screen, SCREEN_H,SCREEN_W)
     main.initgame()
     #class which calculates the collision and reflection
@@ -381,8 +408,9 @@ def game(screen,SCREEN_H,SCREEN_W):
     running = True
     clock = pygame.time.Clock()
     screen.blit(main.background,(0,0))
+    st = "Game starts in : "
+    main.delay3seconds( wolverScore=0, rayScore=0, ballsleft=0,st=st)
 
-    
     while running:
         clock.tick(100) 
         # Change value if single player
@@ -405,6 +433,66 @@ def game(screen,SCREEN_H,SCREEN_W):
                     
                     elif event.key == pygame.K_RIGHT:
                         RaychangeDirection = -1
+                    
+                    if event.key == pygame.K_SPACE: 
+                        if(main.gamestate == CGameState.RUNNING):
+                            main.gamestate = CGameState.PAUSED  
+                        elif(main.gamestate == CGameState.PAUSED):
+                            main.gamestate = CGameState.RUNNING 
+                            st = "Resuming in: "
+                            #just passed the current wolverscore, etc to resume from current state
+                            main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
+                        elif(main.gamestate == CGameState.STOPPED):
+                            st = "Game starts in: "
+                            main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
+                            main.gamestate = CGameState.RUNNING
+                     
+                    if event.key == pygame.K_r:
+                        if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED):   
+                            main.gamestate = CGameState.RESET 
+                            '''should move all these variables as class members, too lazy !!!
+                            anyways, resetting all the params here'''
+                            BallsLeft = 10
+                            ignoreCollide = 0
+                            wolverScore = 0
+                            rayScore = 0
+                            WolverchangeDirection = 0
+                            RaychangeDirection = 0
+                            Collide = False
+                            main.wolverPong.resetbat(180)
+                            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+                            if(main.MULTIPLAYER):
+                                main.rayPong.resetbat(0)
+                                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+                
+                            # Change turn if player loses the ball
+                            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
+              
+                            st = "Resetting in: "
+                            main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
+                            main.gamestate = CGameState.RUNNING
+ 
+                    if event.key == pygame.K_s:
+                        if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED ):
+                            main.gamestate = CGameState.STOPPED
+                            BallsLeft = 10
+                            ignoreCollide = 0
+                            wolverScore = 0
+                            rayScore = 0
+                            WolverchangeDirection = 0
+                            RaychangeDirection = 0
+                            Collide = False
+                            
+                            main.wolverPong.resetbat(180)
+                            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+                            if(main.MULTIPLAYER):
+                                main.rayPong.resetbat(0)
+                                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+                
+                            # Change turn if player loses the ball
+                            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
+              
+                              
                               
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
@@ -418,73 +506,82 @@ def game(screen,SCREEN_H,SCREEN_W):
                         
                     elif event.key == pygame.K_RIGHT:
                         RaychangeDirection = 0
-    
-        main.blitstars()
         
-        main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
-        if(main.MULTIPLAYER):
-            main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+        
+
+        main.blitstars()
+        if(main.gamestate == CGameState.STOPPED):
+            main.render_stop_screen()
             
-        # Change turn if player loses the ball
-        player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
-        '''
-        Should we reset the location of bat also here???????????????????
-        '''     
-        if(BallsLeft > 0):
+        if(main.gamestate ==CGameState.PAUSED):
+            main.render_pause_screen()
             
-            #If collided, dont check for collision for next few iterations
-            if (ignoreCollide==0):
+        if(main.gamestate == CGameState.RUNNING): 
+            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+            if(main.MULTIPLAYER):
+                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
                 
-                # WolverPong's Turn               
-                if(player == 1):
-                    # Draw Background Circle
-                    screen.blit(main.OuterBigOrange,(0,0))
-                    screen.blit(main.InnerBigOrange,(0,0))
+            # Change turn if player loses the ball
+            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
+              
+            if(BallsLeft > 0):
+                
+                #If collided, dont check for collision for next few iterations
+                if (ignoreCollide==0):
                     
-                    # Check Collision
-                    Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),120,main.fireBall.angle)
-                    
-                    if Collide: 
-                        # Increase Score by 1            
-                        wolverScore += 1
-                        sounds[1].play()     
-                        main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),main.fireBall.angle)              
-                        ignoreCollide = 20    
-                        Collide = False
-                        player = -1
-                        main.fireBall.rally +=1
-                        
-                # RayPong's Turn            
-                if(main.MULTIPLAYER):
-                    if(player == -1):
+                    # WolverPong's Turn               
+                    if(player == 1):
                         # Draw Background Circle
-                        screen.blit(main.OuterBigWhite,(0,0))
-                        screen.blit(main.InnerBigWhite,(0,0))
+                        screen.blit(main.OuterBigOrange,(0,0))
+                        screen.blit(main.InnerBigOrange,(0,0))
                         
                         # Check Collision
-                        Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),120,main.fireBall.angle)  
+                        Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),120,main.fireBall.angle)
                         
-                           
-                        if Collide:
-                            # Increase Score by 1
-                            rayScore += 1  
-                            sounds[2].play()
-                            main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),main.fireBall.angle)
-                            ignoreCollide = 20 
+                        if Collide: 
+                            # Increase Score by 1            
+                            wolverScore += 1
+                            sounds[1].play()     
+                            main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),main.fireBall.angle)              
+                            ignoreCollide = 20    
                             Collide = False
-                            player = 1
+                            player = -1
                             main.fireBall.rally +=1
+                            
+                    # RayPong's Turn            
+                    if(main.MULTIPLAYER):
+                        if(player == -1):
+                            # Draw Background Circle
+                            screen.blit(main.OuterBigWhite,(0,0))
+                            screen.blit(main.InnerBigWhite,(0,0))
+                            
+                            # Check Collision
+                            Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),120,main.fireBall.angle)  
+                            
+                               
+                            if Collide:
+                                # Increase Score by 1
+                                rayScore += 1  
+                                sounds[2].play()
+                                main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),main.fireBall.angle)
+                                ignoreCollide = 20 
+                                Collide = False
+                                player = 1
+                                main.fireBall.rally +=1
+                                
+                    
+            if (ignoreCollide > 0):
+                ignoreCollide -= 1
+            # GameOver    
+            if(BallsLeft == 0):
+                running = False
                             
         
         main.render_score_circles()
         main.renderfonts(wolverScore,rayScore,BallsLeft) 
+  
         pygame.display.flip()
-        
-        if (ignoreCollide > 0):
-            ignoreCollide -= 1
-        # GameOver    
-        if(BallsLeft == 0):
-            running = False
+
             
             
 
