@@ -389,7 +389,7 @@ def main():
                 if pygame.mouse.get_pressed()[0] and option.rect.collidepoint(pygame.mouse.get_pos()) and option.text == "NEW GAME" and not handled:
                     sounds[1].stop()
                     StartFrame = False
-                    GameSession.game(screen,SCREEN_H,SCREEN_W,N)
+                    GameSession.game(screen,SCREEN_H,SCREEN_W)
                     handled = pygame.mouse.get_pressed()[0]
                     
                     

@@ -128,16 +128,17 @@ class FireBall(pygame.sprite.Sprite):
         self.screenwidth = pygame.display.get_surface().get_width()
          
         # Speed in pixels per cycle
-        self.speedx = 2.0
+        self.speedx = 3.0
         
-        self.speedy = 2.0
+        self.speedy = 3.0
         # Floating point representation of where the ball is
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
          
         # Direction of ball in degrees
-        self.angle = np.pi/4.0
+
         self.angle = random.uniform(0,2*math.pi)
+
         
         '''This is the case where rally has been increased to a 20 , start increaing the speed after this to make it harder
         '''
@@ -148,10 +149,12 @@ class FireBall(pygame.sprite.Sprite):
         
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
-        self.speedx=2.0
-        self.speedy=2.0
-        self.angle = random.uniform(0,2*math.pi)
+        self.speedx=3.0
+        self.speedy=3.0
+        
+        self.angle =   random.uniform(0,2*math.pi)
         player *= -1 
+
         BallsLeft -= 1
         self.rally = 0
         return player,BallsLeft
@@ -174,8 +177,8 @@ class FireBall(pygame.sprite.Sprite):
         '''If the rally continued for more than 5 times, 
             start increasing the speed of the ball to make it harder
         '''
-        if(self.rally > 5):
-            if(self.rally%5 == 0):
+        if(self.rally > 0):
+            if(self.rally%3 == 0):
                 self.increasespeed()
             
         screen.blit(self.image,self.rect)
@@ -392,7 +395,7 @@ def game(screen,SCREEN_H,SCREEN_W):
     sounds[0].set_volume(0.3)
     
     # Number of Balls Left
-    BallsLeft = 1
+    BallsLeft = 10
         
     # If collided once, dont check for the next n iterations
     ignoreCollide = 0
@@ -581,8 +584,11 @@ def game(screen,SCREEN_H,SCREEN_W):
                 elif(rayScore > wolverScore):
                     winner = -1
                 else:
-                    winner = 0    
+                    winner = 0 
                 GameOver.gameOver(screen, SCREEN_H, SCREEN_W,winner)
+                '''Once the game is over, and gameover screen is closed: need to go back to game.stopped state
+                '''
+                main.gamestate = CGameState.STOPPED
                 sounds[0].play()
                 BallsLeft = 1
                 wolverScore = 0
@@ -597,5 +603,5 @@ def game(screen,SCREEN_H,SCREEN_W):
             
             
 
-if __name__ == "__main__":
-    game(screen,SCREEN_H,SCREEN_W)
+'''if __name__ == "__main__":
+    game(screen,SCREEN_H,SCREEN_W)'''

@@ -238,7 +238,7 @@ def gameOver(screen,SCREEN_H,SCREEN_W,playerWinner):
     
     '''Play Again Option '''
     # Create Options
-    options = [MenuOption("BATTLE AGAIN", (SCREEN_W/1.2, SCREEN_H/1.2),screen)]
+    options = [MenuOption("BATTLE AGAIN", (SCREEN_W/1.4, SCREEN_H/1.2),screen)]
     # to detect mouse clicks
     handled = False
     
