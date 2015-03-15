@@ -5,7 +5,7 @@ Created on Mar 6, 2015
 '''
 def fadeIN(image,ColorTone,imageList):
     
-    if(image == imageList[18] or image == imageList[19] or image == imageList[20]):
+    '''if(image == imageList[18] or image == imageList[19] or image == imageList[20]):
         FadeINspeed = 0.6
     
     elif(image == imageList[0] or image == imageList[1] or image == imageList[2] or image == imageList[5] or image == imageList[10] or image == imageList[11]):
@@ -21,7 +21,8 @@ def fadeIN(image,ColorTone,imageList):
         FadeINspeed = 1.6
                 
     else:    
-        FadeINspeed = 5       
+        FadeINspeed = 5 '''
+    FadeINspeed = 1   
          
     image.set_alpha(ColorTone)            
     ColorTone += FadeINspeed

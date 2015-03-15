@@ -186,6 +186,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         
         # ONE UNIVERSE Call FadeIN Function
         OneUniverseImage,OneUniverseImageColorTone = FadeIN.fadeIN(OneUniverseImage,OneUniverseImageColorTone,images)
+        time.sleep(0.006)
         screen.blit (OneUniverseImage, (SCREEN_W/2 - OneUniverseSize[2]/1, SCREEN_H/2 - OneUniverseSize[3]/2))
         
         if(OneUniverseImageColorTone >= 255):
@@ -197,6 +198,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
             
             # ONE EMPEROR Call FadeIN Function
             OneEmperorImage,OneEmperorImageColorTone = FadeIN.fadeIN(OneEmperorImage,OneEmperorImageColorTone,images)
+            time.sleep(0.006)
             screen.blit (OneEmperorImage, (SCREEN_W/2 + 15, SCREEN_H/2 - OneEmperorSize[3]/2))
             
             if(OneEmperorImageColorTone >= 255):
@@ -232,6 +234,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         
         # ONCE UPON A TIME TEXT Call FadeIN Function
         OnceUponTimeTextImage, OnceUponTimeTextImageColorTone = FadeIN.fadeIN(OnceUponTimeTextImage, OnceUponTimeTextImageColorTone,images)
+        time.sleep(0.0004)
         screen.blit (OnceUponTimeTextImage, (SCREEN_W/2 - OnceUponTimeTextSize[2]*2, SCREEN_H/5))
         
         if(OnceUponTimeTextImageColorTone >= 255):
@@ -239,6 +242,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
             
             # Comma Call FadeIN Function
             CommaImage,CommaImageColorTone = FadeIN.fadeIN(CommaImage,CommaImageColorTone,images)
+            time.sleep(0.0005)
             screen.blit (CommaImage, ((SCREEN_W/2 - OnceUponTimeTextSize[2]*2)+OnceUponTimeTextSize[2], SCREEN_H/5 + CommaSize[3]/2))
             
             if(CommaImageColorTone >= 255):
@@ -246,6 +250,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         
             # ONCE UPON A TIME Call FadeIN Function
             OnceUponTimeImage, OnceUponTimeImageColorTone = FadeIN.fadeIN(OnceUponTimeImage, OnceUponTimeImageColorTone,images)
+            time.sleep(0.0005)
             screen.blit (OnceUponTimeImage, (SCREEN_W/2 - OnceUponTimeSize[2]/2, SCREEN_H/2 - OnceUponTimeSize[3]/2))
             
             if(OnceUponTimeImageColorTone >= 255):
@@ -253,6 +258,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                 
                 # THERE LIVED Call FadeIN Function
                 ThereLivedImage, ThereLivedImageColorTone = FadeIN.fadeIN(ThereLivedImage, ThereLivedImageColorTone,images)
+                time.sleep(0.0004)
                 screen.blit (ThereLivedImage,(SCREEN_W/1.25 - ThereLivedSize[2], SCREEN_H/1.25 - ThereLivedSize[3]))
                 
                 if(ThereLivedImageColorTone >= 255):
@@ -283,7 +289,9 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         screen.blit(background, (0,0))
         
         # SUPERHERO ONE Call FadeIN Function
+        speed = 0.002
         SuperHeroOneImage, SuperHeroOneImageColorTone = FadeIN.fadeIN(SuperHeroOneImage, SuperHeroOneImageColorTone,images)
+        time.sleep(speed)
         screen.blit (SuperHeroOneImage, (SuperHeroOneSize[0] + 20 ,SuperHeroOneSize[1] + 20))
         
         if(SuperHeroOneImageColorTone >= 255):
@@ -292,6 +300,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         # WOLVERPONG NAME Call FadeIN Function        
         if(SuperHeroOneImageColorTone >= 127):
             WolverPongImage, WolverPongImageColorTone = FadeIN.fadeIN(WolverPongImage, WolverPongImageColorTone,images)
+            time.sleep(speed)
             screen.blit (WolverPongImage, ((SuperHeroOneSize[0] + 20)+WolverPongSize[2], (SuperHeroOneSize[1] + 20)+WolverPongSize[3]))
                          
             if(WolverPongImageColorTone >= 255):
@@ -300,6 +309,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
             # WOLVERPONG DESIGNATION Call FadeIN Function       
             if(WolverPongImageColorTone >= 127):
                 RulerWesternHemisphereImage, RulerWesternHemisphereColorTone = FadeIN.fadeIN(RulerWesternHemisphereImage, RulerWesternHemisphereColorTone,images)
+                time.sleep(speed)
                 screen.blit (RulerWesternHemisphereImage, ((SuperHeroOneSize[0] + 20)+WolverPongSize[2], (SuperHeroOneSize[1] + 20)+WolverPongSize[3]*2))
                 
                 if(RulerWesternHemisphereColorTone >= 255):
@@ -308,6 +318,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                 # SUPERHERO TWO Call FadeIN Function
                 if(RulerWesternHemisphereColorTone >= 127):
                     SuperHeroTwoImage, SuperHeroTwoImageColorTone = FadeIN.fadeIN(SuperHeroTwoImage, SuperHeroTwoImageColorTone,images)
+                    time.sleep(speed)
                     screen.blit (SuperHeroTwoImage, (SCREEN_W - 150, SCREEN_H - 200))
                         
                     if(SuperHeroTwoImageColorTone >= 255):
@@ -316,6 +327,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                     # RAYPONG NAME Call FadeIN Function        
                     if(SuperHeroTwoImageColorTone >= 127):
                         RayPongImage, RayPongImageColorTone = FadeIN.fadeIN(RayPongImage, RayPongImageColorTone,images)
+                        time.sleep(speed)
                         screen.blit (RayPongImage, (SCREEN_W - (SuperHeroTwoSize[2] + 350), SCREEN_H -(SuperHeroTwoSize[1] + 150)))
                         
                         if(RayPongImageColorTone >= 255):
@@ -324,6 +336,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                         # WOLVERPONG DESIGNATION Call FadeIN Function       
                         if(RayPongImageColorTone >= 127):
                             RulerEasternHemisphereImage, RulerEasternHemisphereColorTone = FadeIN.fadeIN(RulerEasternHemisphereImage, RulerEasternHemisphereColorTone,images)
+                            time.sleep(speed)
                             screen.blit (RulerEasternHemisphereImage, (SCREEN_W - (SuperHeroTwoSize[2] + 350), SCREEN_H -(SuperHeroTwoSize[1] + 100)))
                             
                             if(RulerEasternHemisphereColorTone >= 255):
@@ -332,6 +345,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                             # RIVAL TEXT Call FadeIN Function       
                             if(RulerEasternHemisphereColorTone >= 127):
                                 RivalTextImage, RivalTextColorTone = FadeIN.fadeIN(RivalTextImage, RivalTextColorTone,images)
+                                time.sleep(speed)
                                 screen.blit (RivalTextImage, (SCREEN_W/3, SCREEN_H/2 - 40))
                                 
                                 if(RivalTextColorTone >= 255):
@@ -369,6 +383,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         SpaceWar1Image, SpaceWar1ImageColorTone = FadeIN.fadeIN(SpaceWar1Image, SpaceWar1ImageColorTone,images)
         
         if(SpaceWar1ImageColorToneOUT > 254):
+            time.sleep(0.002)
             screen.blit (SpaceWar1Image, (100, 40))
         
         # SPACE WAR 2 Call FadeIN Function    
@@ -378,6 +393,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
         if(SpaceWar1ImageColorTone >= 127):
             SpaceWar2Image, SpaceWar2ImageColorTone = FadeIN.fadeIN(SpaceWar2Image, SpaceWar2ImageColorTone,images)
             if(SpaceWar2ImageColorToneOUT > 254):
+                time.sleep(0.002)
                 screen.blit (SpaceWar2Image, (SCREEN_W - 700, 40))
             
             if(SpaceWar2ImageColorTone >= 255):
@@ -388,6 +404,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
             if(SpaceWar2ImageColorTone >= 127):
                 SpaceWar3Image, SpaceWar3ImageColorTone = FadeIN.fadeIN(SpaceWar3Image, SpaceWar3ImageColorTone,images)
                 if(SpaceWar3ImageColorToneOUT > 254):
+                    time.sleep(0.002)
                     screen.blit (SpaceWar3Image, (SCREEN_W - 400, 60))
             
                 if(SpaceWar3ImageColorTone >= 255):
@@ -399,6 +416,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                     
                     SoldiersFallenImage, SoldiersFallenImageColorTone = FadeIN.fadeIN(SoldiersFallenImage, SoldiersFallenImageColorTone,images)
                     if(SoldiersFallenImageColorToneOUT > 254):
+                        time.sleep(0.002)
                         screen.blit (SoldiersFallenImage, (SCREEN_W/3, SCREEN_H/2 - 40))
                     
                     if(SoldiersFallenImageColorTone >= 255):
@@ -406,6 +424,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                     
                     SpaceWar4Image, SpaceWar4ImageColorTone = FadeIN.fadeIN(SpaceWar4Image, SpaceWar4ImageColorTone,images)
                     if(SpaceWar4ImageColorToneOUT > 254):
+                        time.sleep(0.002)
                         screen.blit (SpaceWar4Image, (SCREEN_W - 400, SCREEN_H-300))
             
                     if(SpaceWar4ImageColorTone >= 255):
@@ -416,6 +435,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                     if(SpaceWar4ImageColorTone >= 127):
                         SpaceWar5Image, SpaceWar5ImageColorTone = FadeIN.fadeIN(SpaceWar5Image, SpaceWar5ImageColorTone,images)
                         if(SpaceWar5ImageColorToneOUT > 254):
+                            time.sleep(0.002)
                             screen.blit (SpaceWar5Image, (SCREEN_W - 800, SCREEN_H-200))
             
                         if(SpaceWar5ImageColorTone >= 255):
@@ -426,6 +446,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                         if(SpaceWar5ImageColorTone >= 127):
                             SpaceWar6Image, SpaceWar6ImageColorTone = FadeIN.fadeIN(SpaceWar6Image, SpaceWar6ImageColorTone,images)
                             if(SpaceWar6ImageColorToneOUT > 254):
+                                time.sleep(0.002)
                                 screen.blit (SpaceWar6Image, (75, SCREEN_H-400))
                 
                             if(SpaceWar6ImageColorTone >= 255):
@@ -435,6 +456,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                             # SOLDIERFALLEN TEXT Fade OUT Call Function    
                             if(SpaceWar6ImageColorTone >= 127):
                                 SoldiersFallenImage, SoldiersFallenImageColorToneOUT = FadeOUT.fadeOUT(SoldiersFallenImage, SoldiersFallenImageColorToneOUT)
+                                time.sleep(0.0009)
                                 screen.blit (SoldiersFallenImage, (SCREEN_W/3, SCREEN_H/2 - 40))
                                                   
                                 if(SoldiersFallenImageColorToneOUT <= 0):
@@ -443,6 +465,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                                 if(SoldiersFallenImageColorToneOUT <= 27):
                                     AndNowImage, AndNowImageColorTone = FadeIN.fadeIN(AndNowImage, AndNowImageColorTone, images)
                                     if(AndNowImageColorToneOUT > 254):
+                                        time.sleep(0.0009)
                                         screen.blit (AndNowImage, (SCREEN_W/3, SCREEN_H/2 - 40))
                                     
                                     if(AndNowImageColorTone >= 255):
@@ -452,6 +475,7 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                                         if(AndNowImageColorTone == 255):
                                             
                                             SpaceWar1Image, SpaceWar1ImageColorToneOUT = FadeOUT.fadeOUT(SpaceWar1Image, SpaceWar1ImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (SpaceWar1Image, (100, 40))
                                             
                                             if(SpaceWar1ImageColorToneOUT <= 0):
@@ -464,30 +488,35 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                                                 SpaceWar2ImageColorToneOUT = 0
                                             
                                             SpaceWar3Image, SpaceWar3ImageColorToneOUT = FadeOUT.fadeOUT(SpaceWar3Image, SpaceWar3ImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (SpaceWar3Image, (SCREEN_W - 400, 60))
                                             
                                             if(SpaceWar3ImageColorToneOUT <= 0):
                                                 SpaceWar3ImageColorToneOUT = 0
                                             
                                             SpaceWar4Image, SpaceWar4ImageColorToneOUT = FadeOUT.fadeOUT(SpaceWar4Image, SpaceWar4ImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (SpaceWar4Image, (SCREEN_W - 400, SCREEN_H-300))
                                             
                                             if(SpaceWar4ImageColorToneOUT <= 0):
                                                 SpaceWar4ImageColorToneOUT = 0
                                             
                                             SpaceWar5Image, SpaceWar5ImageColorToneOUT = FadeOUT.fadeOUT(SpaceWar5Image, SpaceWar5ImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (SpaceWar5Image, (SCREEN_W - 800, SCREEN_H-200))
                                             
                                             if(SpaceWar5ImageColorToneOUT <= 0):
                                                 SpaceWar5ImageColorToneOUT = 0
                                             
                                             SpaceWar6Image, SpaceWar6ImageColorToneOUT = FadeOUT.fadeOUT(SpaceWar6Image, SpaceWar6ImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (SpaceWar6Image, (75, SCREEN_H-400))
                                             
                                             if(SpaceWar6ImageColorToneOUT <= 0):
                                                 SpaceWar6ImageColorToneOUT = 0
                                             
                                             AndNowImage, AndNowImageColorToneOUT = FadeOUT.fadeOUT(AndNowImage, AndNowImageColorToneOUT)
+                                            time.sleep(0.0009)
                                             screen.blit (AndNowImage, (SCREEN_W/3, SCREEN_H/2 - 40))
                                             
                                             if(AndNowImageColorToneOUT <= 0):
@@ -496,14 +525,16 @@ def introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background):
                                             if(SpaceWar1ImageColorToneOUT==0 and SpaceWar2ImageColorToneOUT==0 and SpaceWar3ImageColorToneOUT==0 and SpaceWar4ImageColorToneOUT==0 and SpaceWar5ImageColorToneOUT==0 and SpaceWar6ImageColorToneOUT==0 and AndNowImageColorToneOUT == 0):
                                                 FinalTextImage, FinalTextImageColorTone = FadeIN.fadeIN(FinalTextImage, FinalTextImageColorTone,images)
                                                 if(FinalTextImageColorToneOUT > 254):
+                                                    time.sleep(0.0009)
                                                     screen.blit (FinalTextImage, (SCREEN_W/4, SCREEN_H/2 - 40))
                                                 
                                                 if(FinalTextImageColorTone >= 255):
                                                     FinalTextImageColorTone = 255
                                                     
                                                     if(FinalTextImageColorTone == 255):
-                                                        time.sleep(0.10)
+                                                        time.sleep(0.1)
                                                         FinalTextImage, FinalTextImageColorToneOUT = FadeOUT.fadeOUT(FinalTextImage, FinalTextImageColorToneOUT)
+                                                        
                                                         screen.blit (FinalTextImage, (SCREEN_W/4, SCREEN_H/2 - 40))
                                                         
                                                         if(FinalTextImageColorToneOUT <= 0):

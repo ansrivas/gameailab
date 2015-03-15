@@ -4,7 +4,7 @@ from Game import IntroScene, GameSession
 
 # Set Screen Width and Screen Height 
 SCREEN_W, SCREEN_H = (1280, 720)
-screen = pygame.display.set_mode((SCREEN_W,SCREEN_H))
+screen = pygame.display.set_mode((SCREEN_W,SCREEN_H),pygame.FULLSCREEN)
 
 # Number of Stars 
 N = 500  
