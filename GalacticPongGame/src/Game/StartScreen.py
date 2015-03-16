@@ -2,12 +2,8 @@ import pygame
 import random
 from Game import IntroScene, GameSession
 # Set Screen Width and Screen Height
-SCREEN_W, SCREEN_H = (1280, 720)
-screen = pygame.display.set_mode((SCREEN_W,SCREEN_H),pygame.FULLSCREEN)
-
-# Number of Stars 
-N = 500  
-
+RESOLUTION = SCREEN_W, SCREEN_H = (1280, 720)
+screen = pygame.display.set_mode(RESOLUTION, 0,  32)
 
 class GalacticText(pygame.sprite.Sprite):
     def __init__(self):
@@ -19,13 +15,7 @@ class GalacticText(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.image.load('./data/Galactic.png').convert()
-        
-        
-  
-        # Fetch the rectangle object that has the dimensions of the image
-        # image.
-        # Update the position of this object by setting the values 
-        # of rect.x and rect.y
+        # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
         # Instance variables that control the edges of where we bounce
@@ -36,25 +26,24 @@ class GalacticText(pygame.sprite.Sprite):
  
         # Instance variables for our current speed and direction
         self.change_x = 0
-        self.change_y = 0
-         
- 
+        self.change_y = 10
+
  
     def update(self):
         """ Called each frame. """
     
-        if(self.rect.y > SCREEN_H/3-150):
+        if(self.rect.y > SCREEN_H/3 -150):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
-            
+
+
     def setAlpha(self,screen,ColorTone):
-        
         self.image.set_alpha(ColorTone)
+
         
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3+10, SCREEN_H/3 ) )
-        
-        
+
         
         
 class PongText(pygame.sprite.Sprite):
@@ -67,13 +56,8 @@ class PongText(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.image.load('./data/Pong.png').convert()
-        
-        
   
-        # Fetch the rectangle object that has the dimensions of the image
-        # image.
-        # Update the position of this object by setting the values 
-        # of rect.x and rect.y
+        # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
         # Instance variables that control the edges of where we bounce
@@ -87,17 +71,17 @@ class PongText(pygame.sprite.Sprite):
         self.change_y = 0
          
  
- 
     def update(self):
         """ Called each frame. """
     
         if(self.rect.y > SCREEN_H/3-50):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
-            
+
+
     def setAlpha(self,screen,ColorTone):
-        
         self.image.set_alpha(ColorTone)
+
         
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3+220, SCREEN_H/3+100 ) )
@@ -114,13 +98,8 @@ class Planet(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.image.load('./data/Planet.jpg').convert()
-        
-        
   
-        # Fetch the rectangle object that has the dimensions of the image
-        # image.
-        # Update the position of this object by setting the values 
-        # of rect.x and rect.y
+        # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
         # Instance variables that control the edges of where we bounce
@@ -134,20 +113,21 @@ class Planet(pygame.sprite.Sprite):
         self.change_y = 0
          
  
- 
     def update(self):
         """ Called each frame. """
     
         if(self.rect.y > SCREEN_H/3-150):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
+
             
     def setAlpha(self,screen,ColorTone):
-        
         self.image.set_alpha(ColorTone)
+
         
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3-220, SCREEN_H/3 ) )
+
         
 class MenuOption:
  
@@ -162,24 +142,24 @@ class MenuOption:
         
             
     def draw(self,screen):
-        
         self.set_rend()
         screen.blit(self.rend, self.rect)
+
         
     def set_rend(self):
         menu_font = pygame.font.SysFont('Bizarre-Ass Font Sans Serif', 60)
         self.rend = menu_font.render(self.text, True, self.get_color())
+
         
     def get_color(self):
         if self.hovered:
             return (255, 165, 0)
         else:
             return (self.increase_color(), self.increase_color(), self.increase_color())
+
         
     def increase_color(self):
-        
         if(self.i < 100):
-            
             self.i += 1
         
         return self.i
@@ -189,49 +169,36 @@ class MenuOption:
         self.rect = self.rend.get_rect()
         self.rect.topleft = self.pos
         
+
         
 def main():
     
     # Sound Initialization
-    pygame.mixer.init()
-    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.mixer.pre_init(44100, -16, 2, 4096)
     
-    # basic game start
+    # Initialize all modules
     pygame.init()
-    
-   
-    
     pygame.display.set_caption('Galactic Pong Introduction')
     
     # create background
-    background = pygame.Surface(screen.get_size())
-    background = background.convert()
-    
+    background = pygame.Surface(screen.get_size()).convert()
     
     #  Playback song
     sounds = []
-    warSounds = []
     sounds.append(pygame.mixer.Sound('./data/IntroTheme.ogg'))
     sounds.append(pygame.mixer.Sound('./data/MainTheme.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound1.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound2.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound3.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound4.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound5.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound6.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound7.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound8.wav'))
-    warSounds.append(pygame.mixer.Sound('./data/WarSound9.wav'))
+    sounds[0].set_volume(0.1)
+    sounds[1].set_volume(0.1)
     
+    warSounds = []
+    import glob
+    war_sounds = glob.glob("./data/WarSound*.wav")
+    for war_sound in war_sounds:
+        warSounds.append(pygame.mixer.Sound(war_sound))
     
+    # Set number of stars to appear in background
+    numStars = 100
     
-    
-    sounds[0].set_volume(0.8)
-   
-    
-    # This is a list of every sprite. All blocks and the player block as well.
-    all_sprites_list = pygame.sprite.Group()
-      
     ''' GALACTIC TEXT SPRITE'''
     # This represents a block
     GalacticTextSprite = GalacticText()
@@ -288,22 +255,17 @@ def main():
     PlanetTextSprite.bottom_boundary = SCREEN_W
     
     ''' add all sprites'''
-    
-    all_sprites_list.add(PlanetTextSprite)
-    all_sprites_list.add(GalacticTextSprite)
-    all_sprites_list.add(PongTextSprite)
-    
-    
 
+    # This is a list of every sprite. All blocks and the player block as well.
+    all_sprites_list = pygame.sprite.Group(PlanetTextSprite, GalacticTextSprite, PongTextSprite)
     
     # create background
-    ImageBackground = pygame.Surface((720,220))
-    ImageBackground = ImageBackground.convert()
+    ImageBackground = pygame.Surface((720,220)).convert()
     
     # Generate N Star Positions    
     stars = [
     [random.randint(0, SCREEN_W),random.randint(0, SCREEN_H)]
-    for x in range(N)
+    for x in range(numStars)
     ]
     
     Total_Stars_shown = 1
@@ -325,7 +287,6 @@ def main():
     
     while(StartFrame):
         
-        clock.tick(30)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -345,15 +306,15 @@ def main():
                 stars[star][1] = random.randint(0, SCREEN_H)
         
         # Draw Stars one by one (for stars increasing effect)
-        if(Total_Stars_shown < N):        
+        if(Total_Stars_shown < numStars):        
             Total_Stars_shown += 1
         else:
-            Total_Stars_shown = N
+            Total_Stars_shown = numStars
             
         screen.blit(background, (0,0))
         
         # Start Title FadeIn Effect when Total stars > N/3 
-        if(Total_Stars_shown > N/3):
+        if(Total_Stars_shown > numStars/3):
             # Image fadeIN effect
             if(ColorTone<=255):
                 GalacticTextSprite.setAlpha(screen, ColorTone)
@@ -365,7 +326,7 @@ def main():
             PongTextSprite.fadeIN(screen)
         
         # Start moving the Title upwards when all stars are shown and ColorTone of Title is 255
-        if(ColorTone >= 255 and Total_Stars_shown > N/1.3):
+        if(ColorTone >= 255 and Total_Stars_shown > numStars/1.3):
             
             ImageBackground.fill((0,0,0))
             screen.blit(background, (208,242))
