@@ -1,11 +1,44 @@
 import pygame
 import random
 from Game import IntroScene, GameSession
+from abc import abstractmethod, ABCMeta
 # Set Screen Width and Screen Height
 RESOLUTION = SCREEN_W, SCREEN_H = (1280, 720)
 screen = pygame.display.set_mode(RESOLUTION, 0,  32)
 
-class GalacticText(pygame.sprite.Sprite):
+class TextSprites(pygame.sprite.Sprite):
+    """ Abstract class of all other text sprite classes below """
+    __metaclass__ = ABCMeta
+    
+    def __init__(self):
+        # Call the parent class (Sprite) constructor
+        super(TextSprites,self).__init__()
+
+        # Instance variables that control the edges of where we bounce
+        self.left_boundary = 0
+        self.right_boundary = 0
+        self.top_boundary = 0
+        self.bottom_boundary = 0
+ 
+        # Instance variables for our current speed and direction
+        self.change_x = 0
+        self.change_y = 0
+
+    @abstractmethod
+    def update(self, *args):
+        pass
+
+        
+    def setAlpha(self,screen,ColorTone):
+        self.image.set_alpha(ColorTone)
+
+
+    @abstractmethod
+    def fadeIN(self, screen):
+        pass
+
+
+class GalacticText(TextSprites):
     def __init__(self):
         """ Constructor. Pass in the color of the block, 
         and its x and y position. """
@@ -18,35 +51,20 @@ class GalacticText(pygame.sprite.Sprite):
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
-        # Instance variables that control the edges of where we bounce
-        self.left_boundary = 0
-        self.right_boundary = 0
-        self.top_boundary = 0
-        self.bottom_boundary = 0
- 
-        # Instance variables for our current speed and direction
-        self.change_x = 0
-        self.change_y = 10
 
- 
     def update(self):
-        """ Called each frame. """
-    
+        """ Called each frame. """    
         if(self.rect.y > SCREEN_H/3 -150):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
 
 
-    def setAlpha(self,screen,ColorTone):
-        self.image.set_alpha(ColorTone)
-
-        
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3+10, SCREEN_H/3 ) )
 
         
-        
-class PongText(pygame.sprite.Sprite):
+
+class PongText(TextSprites):
     def __init__(self):
         """ Constructor. Pass in the color of the block, 
         and its x and y position. """
@@ -56,21 +74,10 @@ class PongText(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.image.load('./data/Pong.png').convert()
-  
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
-        # Instance variables that control the edges of where we bounce
-        self.left_boundary = 0
-        self.right_boundary = 0
-        self.top_boundary = 0
-        self.bottom_boundary = 0
- 
-        # Instance variables for our current speed and direction
-        self.change_x = 0
-        self.change_y = 0
-         
- 
+
     def update(self):
         """ Called each frame. """
     
@@ -79,16 +86,12 @@ class PongText(pygame.sprite.Sprite):
             self.rect.y -= self.change_y
 
 
-    def setAlpha(self,screen,ColorTone):
-        self.image.set_alpha(ColorTone)
-
-        
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3+220, SCREEN_H/3+100 ) )
             
             
     
-class Planet(pygame.sprite.Sprite):
+class Planet(TextSprites):
     def __init__(self):
         """ Constructor. Pass in the color of the block, 
         and its x and y position. """
@@ -98,20 +101,9 @@ class Planet(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.image.load('./data/Planet.jpg').convert()
-  
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
-        # Instance variables that control the edges of where we bounce
-        self.left_boundary = 0
-        self.right_boundary = 0
-        self.top_boundary = 0
-        self.bottom_boundary = 0
- 
-        # Instance variables for our current speed and direction
-        self.change_x = 0
-        self.change_y = 0
-         
  
     def update(self):
         """ Called each frame. """
@@ -121,10 +113,6 @@ class Planet(pygame.sprite.Sprite):
             self.rect.y -= self.change_y
 
             
-    def setAlpha(self,screen,ColorTone):
-        self.image.set_alpha(ColorTone)
-
-        
     def fadeIN(self,screen):
         screen.blit( self.image, ( SCREEN_W/3-220, SCREEN_H/3 ) )
 
@@ -134,7 +122,7 @@ class MenuOption:
     hovered = False
     i = 0
     
-    def __init__(self, text, pos,screen):
+    def __init__(self, text, pos, screen):
         self.text = text
         self.pos = pos
         self.set_rect()
