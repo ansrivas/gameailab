@@ -237,7 +237,7 @@ def main():
     ColorTone = 1
     
     # Used to manage how fast the screen updates
-#    clock = pygame.time.Clock()
+    clock = pygame.time.Clock()
 #    StartFrame = False
     StartFrame = IntroScene.introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background)
     
@@ -246,7 +246,7 @@ def main():
     fullscreen = False
 
     while(StartFrame):
-#        clock.tick(30)
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
