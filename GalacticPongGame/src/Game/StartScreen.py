@@ -1,8 +1,7 @@
 import pygame
 import random
 from Game import IntroScene, GameSession
-
-# Set Screen Width and Screen Height 
+# Set Screen Width and Screen Height
 SCREEN_W, SCREEN_H = (1280, 720)
 screen = pygame.display.set_mode((SCREEN_W,SCREEN_H),pygame.FULLSCREEN)
 
