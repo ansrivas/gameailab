@@ -1,9 +1,9 @@
 import pygame
 import random
 from Game import IntroScene, GameSession
+from constants import *
 from abc import abstractmethod, ABCMeta
 # Set Screen Width and Screen Height
-RESOLUTION = SCREEN_W, SCREEN_H = (1280, 720)
 screen = pygame.display.set_mode(RESOLUTION, 0,  32)
 
 class TextSprites(pygame.sprite.Sprite):
@@ -156,7 +156,6 @@ class MenuOption:
         self.set_rend()
         self.rect = self.rend.get_rect()
         self.rect.topleft = self.pos
-        
 
         
 def main():
@@ -184,10 +183,7 @@ def main():
     war_sounds = glob.glob("./data/WarSound*.wav")
     for war_sound in war_sounds:
         warSounds.append(pygame.mixer.Sound(war_sound))
-    
-    # Set number of stars to appear in background
-    numStars = 100
-    
+        
     ''' GALACTIC TEXT SPRITE'''
     # This represents a block
     GalacticTextSprite = GalacticText()
