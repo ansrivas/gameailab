@@ -253,13 +253,19 @@ def main():
 
             elif event.type == pygame.KEYDOWN:
                 keys = pygame.key.get_pressed()
+
+                if keys[pygame.K_ESCAPE]:
+                    if fullscreen:
+                        screen = pygame.display.set_mode(RESOLUTION, 0, 32)
+                    fullscreen = not fullscreen
+
                 if keys[pygame.K_f] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
                     fullscreen = not fullscreen
                     if fullscreen:
                         screen = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN, 32)
                     else:
                         screen = pygame.display.set_mode(RESOLUTION, 0, 32)
-        
+                
         
         background.fill((0,0,0))
         
