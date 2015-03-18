@@ -192,22 +192,22 @@ class CMain():
         self.InnerColorTone = self.InnerBigColorTone = 20
         self.OuterColorTone = self.OuterBigColorTone = 40
         
-        self.InnerOrange = self.setScoreCircles(self.InnerColorTone)
-        self.OuterOrange = self.setScoreCircles(self.OuterColorTone, (255,165,0,100), 3)
-        self.InnerWhite = self.setScoreCircles(self.InnerColorTone, (200,200,200,100))
-        self.OuterWhite = self.setScoreCircles(self.OuterColorTone,(200,200,200,100), 3)
+        self.InnerOrange = self.setCircles(self.InnerColorTone)
+        self.OuterOrange = self.setCircles(self.OuterColorTone, (255,165,0,100), 3)
+        self.InnerWhite = self.setCircles(self.InnerColorTone, (200,200,200,100))
+        self.OuterWhite = self.setCircles(self.OuterColorTone,(200,200,200,100), 3)
         
-        self.InnerBigOrange = self.setScoreCircles(self.InnerBigColorTone, \
+        self.InnerBigOrange = self.setCircles(self.InnerBigColorTone, \
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
-        self.OuterBigOrange = self.setScoreCircles(self.OuterBigColorTone, width=4, \
+        self.OuterBigOrange = self.setCircles(self.OuterBigColorTone, width=4, \
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
-        self.InnerBigWhite = self.setScoreCircles(self.InnerBigColorTone, (200,200,200,255), \
+        self.InnerBigWhite = self.setCircles(self.InnerBigColorTone, (200,200,200,255), \
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
-        self.OuterBigWhite = self.setScoreCircles(self.OuterBigColorTone, (200,200,200,255), 4, \
+        self.OuterBigWhite = self.setCircles(self.OuterBigColorTone, (200,200,200,255), 4, \
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
 
     
-    def setScoreCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
+    def setCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
                         surfacePos=(200, 200), fill=BLACK, colorkey=BLACK):
         obj = pygame.Surface(surfacePos)
         obj.fill(fill)
