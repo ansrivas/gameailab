@@ -177,8 +177,8 @@ def main():
     sounds = []
     sounds.append(pygame.mixer.Sound('./data/IntroTheme.ogg'))
     sounds.append(pygame.mixer.Sound('./data/MainTheme.wav'))
-    sounds[0].set_volume(0)
-    sounds[1].set_volume(0)
+    sounds[0].set_volume(0.3)
+    sounds[1].set_volume(0.3)
     
     warSounds = []
     import glob
@@ -292,7 +292,7 @@ def main():
                 GalacticTextSprite.setAlpha(ColorTone)
                 PongTextSprite.setAlpha(ColorTone)
                 PlanetTextSprite.setAlpha(ColorTone)
-                ColorTone += 50
+                ColorTone += 5
             PlanetTextSprite.fadeIN(screen)
             GalacticTextSprite.fadeIN(screen)
             PongTextSprite.fadeIN(screen)

@@ -311,7 +311,7 @@ def game(screen):
     calculate = refcol.CReflectCollid()
 
     # Play Background Music
-    sounds[0].set_volume(0)
+    sounds[0].set_volume(0.3)
     sounds[0].play()
     
     # Number of Balls Left
