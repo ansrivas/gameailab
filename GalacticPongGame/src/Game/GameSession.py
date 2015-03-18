@@ -5,7 +5,6 @@ import numpy as np
 from constants import *
 from Reflection import reflectcollide as refcol
 from Game import GameOver
-from sympy.mpmath import ci
 
 # Sound Initialization
 pygame.mixer.pre_init(44100, -16, 2, 4096)
