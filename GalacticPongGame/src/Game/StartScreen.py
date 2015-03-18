@@ -3,8 +3,10 @@ import random
 from Game import IntroScene, GameSession
 from constants import *
 from abc import abstractmethod, ABCMeta
+
 # Set Screen Width and Screen Height
 screen = pygame.display.set_mode(RESOLUTION, 0,  32)
+
 
 class TextSprites(pygame.sprite.Sprite):
     """ Abstract class of all other text sprite classes below """
@@ -29,7 +31,7 @@ class TextSprites(pygame.sprite.Sprite):
         pass
 
         
-    def setAlpha(self,screen,ColorTone):
+    def setAlpha(self, ColorTone):
         self.image.set_alpha(ColorTone)
 
 
@@ -59,7 +61,7 @@ class GalacticText(TextSprites):
             self.rect.y -= self.change_y
 
 
-    def fadeIN(self,screen):
+    def fadeIN(self, screen):
         screen.blit( self.image, ( SCREEN_W/3+10, SCREEN_H/3 ) )
 
         
@@ -86,7 +88,7 @@ class PongText(TextSprites):
             self.rect.y -= self.change_y
 
 
-    def fadeIN(self,screen):
+    def fadeIN(self, screen):
         screen.blit( self.image, ( SCREEN_W/3+220, SCREEN_H/3+100 ) )
             
             
@@ -113,7 +115,7 @@ class Planet(TextSprites):
             self.rect.y -= self.change_y
 
             
-    def fadeIN(self,screen):
+    def fadeIN(self, screen):
         screen.blit( self.image, ( SCREEN_W/3-220, SCREEN_H/3 ) )
 
         
@@ -129,7 +131,7 @@ class MenuOption:
         self.draw(screen)
         
             
-    def draw(self,screen):
+    def draw(self, screen):
         self.set_rend()
         screen.blit(self.rend, self.rect)
 
@@ -175,8 +177,8 @@ def main():
     sounds = []
     sounds.append(pygame.mixer.Sound('./data/IntroTheme.ogg'))
     sounds.append(pygame.mixer.Sound('./data/MainTheme.wav'))
-    sounds[0].set_volume(0.1)
-    sounds[1].set_volume(0.1)
+    sounds[0].set_volume(0)
+    sounds[1].set_volume(0)
     
     warSounds = []
     import glob
@@ -224,8 +226,8 @@ def main():
     ]
     
     # Create Menu Options
-    options = [MenuOption("NEW GAME", (SCREEN_W/3+50, SCREEN_H/2),screen), \
-               MenuOption("CONTROLS", (SCREEN_W/3+50, SCREEN_H/2+100),screen)]
+    options = [MenuOption("NEW GAME", (SCREEN_W/3+50, SCREEN_H/2), screen), \
+               MenuOption("CONTROLS", (SCREEN_W/3+50, SCREEN_H/2+100), screen)]
     
     Total_Stars_shown = 1
 
@@ -287,10 +289,10 @@ def main():
         if(Total_Stars_shown > numStars/3):
             # Image fadeIN effect
             if(ColorTone<=255):
-                GalacticTextSprite.setAlpha(screen, ColorTone)
-                PongTextSprite.setAlpha(screen, ColorTone)
-                PlanetTextSprite.setAlpha(screen, ColorTone)
-                ColorTone += 5
+                GalacticTextSprite.setAlpha(ColorTone)
+                PongTextSprite.setAlpha(ColorTone)
+                PlanetTextSprite.setAlpha(ColorTone)
+                ColorTone += 50
             PlanetTextSprite.fadeIN(screen)
             GalacticTextSprite.fadeIN(screen)
             PongTextSprite.fadeIN(screen)
@@ -299,11 +301,11 @@ def main():
         if(ColorTone >= 255 and Total_Stars_shown > numStars/1.3):
             ImageBackground.fill((0,0,0))
             screen.blit(background, (208,242))
-            all_sprites_list.clear(screen,background)
+            all_sprites_list.clear(screen, background)
             all_sprites_list.update()
             all_sprites_list.draw(screen)
-        
-        
+
+
         if(GalacticTextSprite.rect.y <= SCREEN_H/3-150):
             for option in options:
                 if option.rect.collidepoint(pygame.mouse.get_pos()):
@@ -316,7 +318,7 @@ def main():
                     #Fades out the current sound and smoothly enters into the game
                     pygame.mixer.fadeout(2000)
                     StartFrame = False
-                    GameSession.game(screen,SCREEN_H,SCREEN_W)
+                    GameSession.game(screen)
                     handled = pygame.mouse.get_pressed()[0]
                     
                 if(StartFrame):    

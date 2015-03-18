@@ -1,14 +1,14 @@
 import pygame
-import random
+import time
+import math, random
 import numpy as np
-import math
+from constants import *
 from Reflection import reflectcollide as refcol
 from Game import GameOver
-import time
+from sympy.mpmath import ci
 
 # Sound Initialization
-pygame.mixer.init()
-pygame.mixer.pre_init(44100, -16, 2, 2048)
+pygame.mixer.pre_init(44100, -16, 2, 4096)
 
 #  Playback song
 sounds = []
@@ -19,158 +19,124 @@ sounds.append(pygame.mixer.Sound('./data/BallOut1.wav'))
 sounds.append(pygame.mixer.Sound('./data/hitball.wav'))
 
 # Set Screen Width and Screen Height 
-SCREEN_W, SCREEN_H = (1280, 720)
-screen = pygame.display.set_mode((SCREEN_W,SCREEN_H))
-
-# Number of Stars 
-N = 500  
+screen = pygame.display.set_mode(RESOLUTION, 0, 32)
 
 debug = False
 
-class Color():
-    white=(255,255,255)
-    black=(0,0,0)
-    blue = (0,255,255)
-    red = (255,0,0)
-    snow = (205,201,201)
-    palegreen= (152,251,152)
-
-    def __init__(self):
-        pass
-    
+radius = 320
 
 class Pong(pygame.sprite.Sprite):
-    def __init__(self,pongdimension,speed,batimagepath,screen,SCREEN_H,SCREEN_W,initialPlace):
-        pygame.sprite.Sprite.__init__(self)
+    """ Sprite Class for Pong bats - WolverPong, RayPong """
+
+    def __init__(self, batImagePath, initialPlace, pongDimension=(50, 120), speed=2):
+        super(Pong, self).__init__()
       
-        self.color = Color.red
+        self.color = RED
         #self.width = width
-        self.image = pygame.Surface(pongdimension).convert()
-        self.image.fill((255,0,0))
-        self.image.set_colorkey((255,0,0))
-        
-        self.x= 0
-        self.y =0
+        self.x = self.y = 0
         self.angle = 1
         self.theta =  initialPlace 
         self.speed = speed
-        self.batdimx, self.batdimy = pongdimension
-        
-        self.image = pygame.image.load(batimagepath)
+        self.batdimx, self.batdimy = pongDimension
+        self.image = pygame.image.load(batImagePath)
+
         if(debug):
-            self.originalrect = pygame.draw.rect(self.image, self.color, (self.x,self.y,self.batdimx, self.batdimy ), 1)
+            self.originalrect = pygame.draw.rect(self.image, self.color, (self.x, self.y, self.batdimx, \
+                                                                          self.batdimy), 1)
         
-        self.rot = pygame.transform.rotate(self.image,self.angle )
-        
+        self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
+        self.rect.center = (266, 266)
+
         
-        self.rect.center = (266,266)
-        
-        
-        
-    def findPointOnCircle(self,deg,screen,SCREEN_H,SCREEN_W):
-        """
-        Give an angle in degrees and we will get a corresponding point on circle w.r.t to this angle in clockwise.
-        """
+    def findPointOnCircle(self, deg):
+        """ Returns the x,y coordinates of the corresponding angle (in degrees) """
+
         rad = np.deg2rad(deg)
-             
-        y = (SCREEN_H/2) - 320 * math.sin(rad)
         x = (SCREEN_W/2) + 320 * math.cos(rad)
-            
+        y = (SCREEN_H/2) - 320 * math.sin(rad)
+
         return int(x),int(y)
     
     
-    def update(self,changeDirection,screen,SCREEN_H,SCREEN_W):
-        
-        
-        if(changeDirection ==1):
+    def update(self, changeDirection, screen):
+        if(changeDirection == 1):
             self.theta += self.speed
-        if(changeDirection ==-1):
-            if(self.theta>= 0):
-                self.theta -=self.speed
-            if(self.theta<0):
+        elif(changeDirection == -1):
+            if(self.theta >= 0):
+                self.theta -= self.speed
+            else:
                 self.theta = 360- self.speed
             
         if(self.theta >= 360):
-            self.theta = 00
+            self.theta = 0
         
- 
-
         self.angle  = float(self.theta) #- float(self.batdimx/213)
-
-        self.rot = pygame.transform.rotate(self.image,self.angle)
+        self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
-        self.rect.center = self.findPointOnCircle(self.theta,screen,SCREEN_H,SCREEN_W)
-        screen.blit(self.rot,self.rect)
+        self.rect.center = self.findPointOnCircle(self.theta)
+        screen.blit(self.rot, self.rect)
  
-    def resetbat(self,initialloc):
-        self.x= 0
-        self.y =0
+    def resetbat(self, initialloc):
+        self.x = self.y = 0
         self.angle = 1
         self.theta =  initialloc 
         self.speed = 2
         self.rect.center = (266,266)
-       
+
+
 class FireBall(pygame.sprite.Sprite):
+    """ Sprite Class for pong ball - FireBall"""
     
-    def __init__(self,ballDimension,imageName,screen,SCREEN_H,SCREEN_W):
+    def __init__(self, ballDimension=(28,29), ballImage="./data/ball.png"):
         # Call the parent class (Sprite) constructor
-        super(FireBall,self).__init__()
+        super(FireBall, self).__init__()
          
-        # Create the image of the ball
-        self.image = pygame.image.load(imageName)
-    # Get a rectangle object that shows where our image is
+        self.image = pygame.image.load(ballImage)
         self.rect = self.image.get_rect()
-        
-        self.rect.centerx,self.rect.centery = (100,100)
-         
-        # Get attributes for the height/width of the screen
-        self.screenheight = pygame.display.get_surface().get_height()
-        self.screenwidth = pygame.display.get_surface().get_width()
-         
+        self.rect.centerx, self.rect.centery = (100,100)
+
         # Speed in pixels per cycle
-        self.speedx = 3.0
-        
-        self.speedy = 3.0
+        self.speedx = self.speedy = 3.0
+
         # Floating point representation of where the ball is
-        self.x = SCREEN_W/2
-        self.y = SCREEN_H/2
+        self.x, self.y = SCREEN_W/2, SCREEN_H/2
          
         # Direction of ball in degrees
-
-        self.angle = random.uniform(0,2*math.pi)
-
+        self.angle = random.uniform(0, 2*math.pi)
         
-        '''This is the case where rally has been increased to a 20 , start increaing the speed after this to make it harder
+        self.offset = 70
+        
+        '''
+        This is the case where rally has been increased to a 20, start increasing the speed 
+        after this to make it harder
         '''
         self.rally = 0
+
         
-    def reset(self,SCREEN_H,SCREEN_W,player,BallsLeft):
-        
-        
+    def resetBall(self, player, BallsLeft):
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
-        self.speedx=3.0
-        self.speedy=3.0
-        
-        self.angle =   random.uniform(0,2*math.pi)
-        player *= -1 
+        self.speedx = self.speedy = 3.0
+        self.angle = random.uniform(0, 2*math.pi)
 
+        player *= -1 
         BallsLeft -= 1
         self.rally = 0
-        return player,BallsLeft
+        
+        return player, BallsLeft
+
     
-    def update(self,screen,SCREEN_H,SCREEN_W,player,BallsLeft):
+    def update(self, screen, player, BallsLeft):
          
         # Change the position (x and y) according to the speed and direction
         self.x += math.cos(self.angle) * self.speedx
         self.y -= math.sin(self.angle) * self.speedy
   
-        if self.y <= 0 or self.x <= 0:
-            player,BallsLeft = self.reset(SCREEN_H,SCREEN_W,player,BallsLeft)
+        # Reset the ball position if it goes out of the circle (+ offset value)
+        if math.sqrt((self.x - SCREEN_W/2)**2 + (self.y - SCREEN_H/2)**2) >= (radius + self.offset):
+            player, BallsLeft = self.resetBall(player, BallsLeft)
              
-        if self.y >= SCREEN_H or self.x >= SCREEN_W:
-            player,BallsLeft = self.reset(SCREEN_H,SCREEN_W,player,BallsLeft)
         # Move the image to where our x and y are
         self.rect.x = self.x
         self.rect.y = self.y
@@ -182,8 +148,10 @@ class FireBall(pygame.sprite.Sprite):
             if(self.rally%3 == 0):
                 self.increasespeed()
             
-        screen.blit(self.image,self.rect)
-        return player,BallsLeft
+        screen.blit(self.image, self.rect)
+
+        return player, BallsLeft
+
 
     def increasespeed(self):
         '''just increase the speed a bit after a 
@@ -192,145 +160,72 @@ class FireBall(pygame.sprite.Sprite):
         self.speedx += 0.005
         self.speedy += 0.005
         
-        
-
-class CGameState():
-    RUNNING,STOPPED,PAUSED,RESET = 1,2,3,4
-    def __init__(self):
-        pass
-    
-
 
 class CMain():
-    def __init__(self,screen, SCREEN_H,SCREEN_W):
-        self.gamestate = CGameState.RUNNING
-        self.MULTIPLAYER= None
-        self.screen = screen
-        self.background = None
-        self.InnerOrange = None
-        self.OuterOrange= None
-        self.OuterWhite= None
-        self.InnerWhite = None
-        self.OuterBigWhite = None
-        self.InnerBigWhite = None
-        self.wolverPong = None
-        self.rayPong = None
-        self.fireBall = None
-        self.stars = None
-        self.font1 = None
-        self.font2 = None
-        
-        
-    def initgame(self):
-        self.MULTIPLAYER = True
-        #global SCREEN_W,SCREEN_H        
-        # basic start
+
+    def __init__(self, screen):
         pygame.init()
-     
         pygame.display.set_caption('Galactic Pong') 
-        # create background
-        self.background = pygame.Surface(screen.get_size())
-        self.background = self.background.convert()
-        # set transparency for the circles
-        InnerColorTone = 20
-        OuterColorTone = 40
 
-        # create surfaces for transparent circles (Scores)
-        self.InnerOrange = pygame.Surface((200,200))
-        self.InnerOrange.fill(Color.black)
-        self.InnerOrange.set_colorkey(Color.black)
-        self.InnerOrange.set_alpha(InnerColorTone)
-        pygame.draw.circle(self.InnerOrange, (255,165,0,255),(100,100), 50)
-        
-        self.OuterOrange = pygame.Surface((200,200))
-        self.OuterOrange.fill(Color.black)
-        self.OuterOrange.set_colorkey(Color.black)
-        self.OuterOrange.set_alpha(OuterColorTone)
-        pygame.draw.circle(self.OuterOrange, (255,165,0,100),(100,100), 50,3)
-        
-        self.InnerWhite = pygame.Surface((200,200))
-        self.InnerWhite.fill(Color.black)
-        self.InnerWhite.set_colorkey(Color.black)
-        self.InnerWhite.set_alpha(InnerColorTone)
-        pygame.draw.circle(self.InnerWhite, (200,200,200,100),(100,100), 50)
-        
-        self.OuterWhite = pygame.Surface((200,200))
-        self.OuterWhite.fill(Color.black)
-        self.OuterWhite.set_colorkey(Color.black)
-        self.OuterWhite.set_alpha(OuterColorTone)
-        pygame.draw.circle(self.OuterWhite, (200,200,200,100),(100,100), 50,3)
-        
-        
-        # set transparency for Big circles
-        InnerBigColorTone = 20
-        OuterBigColorTone = 40
-  
-        # Create surface for transparent game circles 
-        self.InnerBigOrange =  pygame.Surface((SCREEN_W,SCREEN_H))
-        self.InnerBigOrange.fill(Color.black)
-        self.InnerBigOrange.set_colorkey(Color.black)
-        self.InnerBigOrange.set_alpha(InnerBigColorTone)
-        pygame.draw.circle(self.InnerBigOrange, (255,165,0,255),(SCREEN_W/2,SCREEN_H/2), 300)
-        
-        
-        self.OuterBigOrange =  pygame.Surface((SCREEN_W,SCREEN_H))
-        self.OuterBigOrange.fill(Color.black)
-        self.OuterBigOrange.set_colorkey(Color.black)
-        self.OuterBigOrange.set_alpha(OuterBigColorTone)
-        pygame.draw.circle(self.OuterBigOrange, (255,165,0,255),(SCREEN_W/2,SCREEN_H/2), 300,4)
-        
-        self.InnerBigWhite =  pygame.Surface((SCREEN_W,SCREEN_H))
-        self.InnerBigWhite.fill(Color.black)
-        self.InnerBigWhite.set_colorkey(Color.black)
-        self.InnerBigWhite.set_alpha(InnerBigColorTone)
-        pygame.draw.circle(self.InnerBigWhite, (200,200,200,255),(SCREEN_W/2,SCREEN_H/2), 300)
-        
-        self.OuterBigWhite =  pygame.Surface((SCREEN_W,SCREEN_H))
-        self.OuterBigWhite.fill(Color.black)
-        self.OuterBigWhite.set_colorkey(Color.black)
-        self.OuterBigWhite.set_alpha(OuterBigColorTone)
-        pygame.draw.circle(self.OuterBigWhite, (200,200,200,255),(SCREEN_W/2,SCREEN_H/2), 300,4)
-
-
+        self.gamestate = RUNNING
+        self.MULTIPLAYER = True
         self.stars = [
-        [random.randint(0, SCREEN_W),random.randint(0, SCREEN_H)]
-        for x in range(250)
-        ]        
-        
-        # Score Font 
-        self.font1 = pygame.font.SysFont("calibri",40)
-        # Side Headings Font
-        self.font2 = pygame.font.SysFont("Papyrus",30)
- 
-           
-        # WolverPONG Call Function
-        wolverpongimage = "./data/rWolverGamePONG.png"
-        self.wolverPong = Pong((50,120),2,wolverpongimage,self.screen,SCREEN_H,SCREEN_W,180)             
-         
-            
-        if(self.MULTIPLAYER):
-            # RayPONG Call Function
-            rayPongimage = "./data/RayGamePONG.png"
-            self.rayPong = Pong((50,120),2,rayPongimage,self.screen,SCREEN_H,SCREEN_W,0) 
-            
-            
-        # FireBall Call Function
-        ballimage = "./data/ball.png"
-        self.fireBall = FireBall((28,29), ballimage,self.screen,SCREEN_H,SCREEN_W)
-        
-    
-    def update(self):
+            [random.randint(0, SCREEN_W), random.randint(0, SCREEN_H)]
+            for _ in range(numStars)
+        ]
+        self.screen = screen
+        self.background = pygame.Surface(screen.get_size()).convert()
 
-        pass
+        self.scoreFont = pygame.font.SysFont("calibri",40)
+        self.headingFont = pygame.font.SysFont("Papyrus",30)
+
+        wolverpongimage = "./data/rWolverGamePONG.png"
+        self.wolverPong = Pong(wolverpongimage, 180)  
+         
+        if self.MULTIPLAYER:
+            rayPongimage = "./data/RayGamePONG.png"
+            self.rayPong = Pong(rayPongimage, 0) 
+
+        self.fireBall = FireBall()
+
+        # set transparency for the circles
+        self.InnerColorTone = self.InnerBigColorTone = 20
+        self.OuterColorTone = self.OuterBigColorTone = 40
+        
+        self.InnerOrange = self.setScoreCircles(self.InnerColorTone)
+        self.OuterOrange = self.setScoreCircles(self.OuterColorTone, (255,165,0,100), 3)
+        self.InnerWhite = self.setScoreCircles(self.InnerColorTone, (200,200,200,100))
+        self.OuterWhite = self.setScoreCircles(self.OuterColorTone,(200,200,200,100), 3)
+        
+        self.InnerBigOrange = self.setScoreCircles(self.InnerBigColorTone, \
+                                                   radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
+        self.OuterBigOrange = self.setScoreCircles(self.OuterBigColorTone, width=4, \
+                                                   radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
+        self.InnerBigWhite = self.setScoreCircles(self.InnerBigColorTone, (200,200,200,255), \
+                                                   radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
+        self.OuterBigWhite = self.setScoreCircles(self.OuterBigColorTone, (200,200,200,255), 4, \
+                                                   radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
+
+    
+    def setScoreCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
+                        surfacePos=(200, 200), fill=BLACK, colorkey=BLACK):
+        obj = pygame.Surface(surfacePos)
+        obj.fill(fill)
+        obj.set_colorkey(colorkey)
+        obj.set_alpha(alpha)
+        pygame.draw.circle(obj, color, pos, radius, width)
+        
+        return obj
+
     
     def blitstars(self): 
-        # Generate N Star Positions    
+        # Generate N Star Positions
             
-        self.background.fill(Color.black)     
+        self.background.fill(BLACK)     
         # Draw Stars (stars moving effect) 
         for star in self.stars:
             pygame.draw.line(self.background,(255, 255, 255), (star[0], star[1]), (star[0], star[1]))
-            star[0] = star[0] - 1
+            star[0] -= 1
             if star[0] < 0:
                 star[0] = SCREEN_W
                 star[1] = random.randint(0, SCREEN_H)
@@ -339,12 +234,12 @@ class CMain():
      
     def renderfonts(self,wolverScore,rayScore,ballsleft):
                 # Render Scores        
-        wolverScoreRender = self.font1.render(str(wolverScore), True,(205,205,205))
-        rayScoreRender = self.font1.render(str(rayScore), True,(205,205,205)) 
+        wolverScoreRender = self.scoreFont.render(str(wolverScore), True,(205,205,205))
+        rayScoreRender = self.scoreFont.render(str(rayScore), True,(205,205,205)) 
         # Render Balls Left
-        BallsLeftRender = self.font2.render("BALLS LEFT : "+str(ballsleft), True,(205,205,205))
+        BallsLeftRender = self.headingFont.render("BALLS LEFT : "+str(ballsleft), True,(205,205,205))
         # Render HighScore
-        HighScoreRender = self.font2.render("HIGHSCORE : ", True,(205,205,205))
+        HighScoreRender = self.headingFont.render("HIGHSCORE : ", True,(205,205,205))
         self.screen.blit(wolverScoreRender,(188.,185.))
         self.screen.blit(rayScoreRender,(1068.,185.)) 
         
@@ -366,7 +261,7 @@ class CMain():
             self.blitstars()
             self.render_score_circles()
             self.renderfonts(wolverScore, rayScore, ballsleft)
-            secondsRender = self.font2.render(st+str(i), True,(205,205,205))
+            secondsRender = self.headingFont.render(st+str(i), True,(205,205,205))
             self.screen.blit(secondsRender,(525.,10.)) 
             
             pygame.display.flip()
@@ -377,11 +272,11 @@ class CMain():
         pass
             
     def render_pause_screen(self):
-        pauseRender = self.font2.render("Game Paused: press Space Bar to resume", True,(205,205,205))
+        pauseRender = self.headingFont.render("Game Paused: press Space Bar to resume", True,(205,205,205))
         self.screen.blit(pauseRender,(380.,100.)) 
 
     def render_stop_screen(self):
-        stopRender = self.font2.render("Game Stopped: press Space Bar to restart", True,(205,205,205))
+        stopRender = self.headingFont.render("Game Stopped: press Space Bar to restart", True,(205,205,205))
         self.screen.blit(stopRender,(380.,100.)) 
  
  
@@ -407,18 +302,17 @@ def global_param_reset():
     RaychangeDirection = 0
     Collide = False  
         
-def game(screen,SCREEN_H,SCREEN_W):
+def game(screen):
  
     global BallsLeft,ignoreCollide,wolverScore,rayScore,WolverchangeDirection ,RaychangeDirection,Collide
      
-    main = CMain(screen, SCREEN_H,SCREEN_W)
-    main.initgame()
+    main = CMain(screen)
     #class which calculates the collision and reflection
     calculate = refcol.CReflectCollid()
 
     # Play Background Music
+    sounds[0].set_volume(0)
     sounds[0].play()
-    sounds[0].set_volume(0.2)
     
     # Number of Balls Left
     BallsLeft = 10
@@ -426,10 +320,8 @@ def game(screen,SCREEN_H,SCREEN_W):
     # If collided once, dont check for the next n iterations
     ignoreCollide = 0
         
-    wolverScore = 0
-    rayScore = 0
-    WolverchangeDirection = 0
-    RaychangeDirection = 0
+    wolverScore = rayScore = 0
+    WolverchangeDirection = RaychangeDirection = 0
 
     Collide = False
  
@@ -468,49 +360,49 @@ def game(screen,SCREEN_H,SCREEN_W):
                         RaychangeDirection = -1
                     
                     if event.key == pygame.K_SPACE: 
-                        if(main.gamestate == CGameState.RUNNING):
-                            main.gamestate = CGameState.PAUSED  
-                        elif(main.gamestate == CGameState.PAUSED):
-                            main.gamestate = CGameState.RUNNING 
+                        if(main.gamestate == RUNNING):
+                            main.gamestate = PAUSED  
+                        elif(main.gamestate == PAUSED):
+                            main.gamestate = RUNNING 
                             st = "Resuming in: "
                             #just passed the current wolverscore, etc to resume from current state
                             main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
-                        elif(main.gamestate == CGameState.STOPPED):
+                        elif(main.gamestate == STOPPED):
                             st = "Game starts in: "
                             main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
-                            main.gamestate = CGameState.RUNNING
+                            main.gamestate = RUNNING
                      
                     if event.key == pygame.K_r:
-                        if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED):   
-                            main.gamestate = CGameState.RESET 
+                        if(main.gamestate == RUNNING or main.gamestate == PAUSED):   
+                            main.gamestate = RESET 
 
                             global_param_reset()
                             main.wolverPong.resetbat(180)
-                            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+                            main.wolverPong.update(WolverchangeDirection,screen)
                             if(main.MULTIPLAYER):
                                 main.rayPong.resetbat(0)
-                                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+                                main.rayPong.update(RaychangeDirection,screen)
                 
                             # Change turn if player loses the ball
-                            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
+                            player,BallsLeft = main.fireBall.update(screen, player, BallsLeft) 
               
                             st = "Resetting in: "
                             main.delay3seconds(wolverScore,rayScore,BallsLeft,st)
-                            main.gamestate = CGameState.RUNNING
+                            main.gamestate = RUNNING
  
                     if event.key == pygame.K_s:
-                        if(main.gamestate == CGameState.RUNNING or main.gamestate == CGameState.PAUSED ):
-                            main.gamestate = CGameState.STOPPED
+                        if(main.gamestate == RUNNING or main.gamestate == PAUSED ):
+                            main.gamestate = STOPPED
 
                             global_param_reset()
                             main.wolverPong.resetbat(180)
-                            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+                            main.wolverPong.update(WolverchangeDirection, screen)
                             if(main.MULTIPLAYER):
                                 main.rayPong.resetbat(0)
-                                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+                                main.rayPong.update(RaychangeDirection, screen)
                 
                             # Change turn if player loses the ball
-                            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
+                            player,BallsLeft = main.fireBall.update(screen, player, BallsLeft) 
               
                               
                               
@@ -530,20 +422,20 @@ def game(screen,SCREEN_H,SCREEN_W):
         
 
         main.blitstars()
-        if(main.gamestate == CGameState.STOPPED):
+        if(main.gamestate == STOPPED):
             main.render_stop_screen()
             
-        if(main.gamestate ==CGameState.PAUSED):
+        if(main.gamestate == PAUSED):
             main.render_pause_screen()
             
-        if(main.gamestate == CGameState.RUNNING): 
-            main.wolverPong.update(WolverchangeDirection,screen,SCREEN_H,SCREEN_W)
+        if(main.gamestate == RUNNING): 
+            main.wolverPong.update(WolverchangeDirection,screen)
             if(main.MULTIPLAYER):
-                main.rayPong.update(RaychangeDirection,screen,SCREEN_H,SCREEN_W)
+                main.rayPong.update(RaychangeDirection,screen)
                 
             # Change turn if player loses the ball
-            player,BallsLeft = main.fireBall.update(screen,SCREEN_H,SCREEN_W,player,BallsLeft) 
-              
+            player,BallsLeft = main.fireBall.update(screen, player, BallsLeft) 
+
             if(BallsLeft > 0):
                 
                 #If collided, dont check for collision for next few iterations
@@ -556,14 +448,21 @@ def game(screen,SCREEN_H,SCREEN_W):
                         screen.blit(main.InnerBigOrange,(0,0))
                         
                         # Check Collision
-                        Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),120,main.fireBall.angle)
+                        Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery, \
+                                                         main.wolverPong.rect.centerx,main.wolverPong.rect.centery, \
+                                                         np.deg2rad(main.wolverPong.angle),120,main.fireBall.angle)
                         
                         if Collide: 
                             # Increase Score by 1            
                             wolverScore += 1
                             #sounds[1].play()  
                             sounds[4].play()   
-                            main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.wolverPong.rect.centerx,main.wolverPong.rect.centery,np.deg2rad(main.wolverPong.angle),main.fireBall.angle)              
+                            main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx, \
+                                                                         main.fireBall.rect.centery, \
+                                                                         main.wolverPong.rect.centerx, \
+                                                                         main.wolverPong.rect.centery, \
+                                                                         np.deg2rad(main.wolverPong.angle), \
+                                                                         main.fireBall.angle)              
                             ignoreCollide = 20    
                             Collide = False
                             player = -1
@@ -577,7 +476,9 @@ def game(screen,SCREEN_H,SCREEN_W):
                             screen.blit(main.InnerBigWhite,(0,0))
                             
                             # Check Collision
-                            Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),120,main.fireBall.angle)  
+                            Collide = calculate.checkCollide(main.fireBall.rect.centerx,main.fireBall.rect.centery, \
+                                                             main.rayPong.rect.centerx,main.rayPong.rect.centery, \
+                                                             np.deg2rad(main.rayPong.angle),120,main.fireBall.angle)  
                             
                                
                             if Collide:
@@ -585,7 +486,12 @@ def game(screen,SCREEN_H,SCREEN_W):
                                 rayScore += 1  
                                 #sounds[2].play()
                                 sounds[4].play()
-                                main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx,main.fireBall.rect.centery,main.rayPong.rect.centerx,main.rayPong.rect.centery,np.deg2rad(main.rayPong.angle),main.fireBall.angle)
+                                main.fireBall.angle = calculate.reflectAngle(main.fireBall.rect.centerx, \
+                                                                             main.fireBall.rect.centery, \
+                                                                             main.rayPong.rect.centerx, \
+                                                                             main.rayPong.rect.centery, \
+                                                                             np.deg2rad(main.rayPong.angle), \
+                                                                             main.fireBall.angle)
                                 ignoreCollide = 20 
                                 Collide = False
                                 player = 1
@@ -606,7 +512,7 @@ def game(screen,SCREEN_H,SCREEN_W):
                 GameOver.gameOver(screen, SCREEN_H, SCREEN_W,winner)
                 '''Once the game is over, and gameover screen is closed: need to go back to game.stopped state
                 '''
-                main.gamestate = CGameState.STOPPED
+                main.gamestate = STOPPED
                 sounds[0].play()
                 global_param_reset()         
         
@@ -615,9 +521,7 @@ def game(screen,SCREEN_H,SCREEN_W):
   
         pygame.display.flip()
         clock.tick(100)
-
-            
             
 
 if __name__ == "__main__":
-    game(screen,SCREEN_H,SCREEN_W)
+    game(screen, SCREEN_H, SCREEN_W)
