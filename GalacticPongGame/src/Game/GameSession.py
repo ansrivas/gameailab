@@ -236,7 +236,7 @@ class CMain():
         
         self.screen.blit(self.background,(0,0)) 
      
-    def (self,wolverScore,rayScore,ballsleft):
+    def renderfonts(self,wolverScore,rayScore,ballsleft):
                 # Render Scores        
         wolverScoreRender = self.scoreFont.render(str(wolverScore), True,(205,205,205))
         rayScoreRender = self.scoreFont.render(str(rayScore), True,(205,205,205)) 
