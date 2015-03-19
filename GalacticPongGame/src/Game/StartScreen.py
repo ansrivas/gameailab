@@ -4,6 +4,7 @@ from Game import IntroScene, GameSession
 from constants import *
 from abc import abstractmethod, ABCMeta
 
+
 # Set Screen Width and Screen Height
 screen = pygame.display.set_mode(RESOLUTION, 0,  32)
 
@@ -327,6 +328,7 @@ def main():
         pygame.display.flip()
         
 if __name__ == "__main__":
+
     main()
     
     

@@ -5,10 +5,15 @@ import numpy as np
 from constants import *
 from Reflection import reflectcollide as refcol
 from Game import GameOver
-from sympy.mpmath import ci
+from logger.CLogger import Output
 
 # Sound Initialization
 pygame.mixer.pre_init(44100, -16, 2, 4096)
+
+'''just using a naive global logger
+'''
+log = Output()
+
 
 #  Playback song
 sounds = []
@@ -47,7 +52,7 @@ class Pong(pygame.sprite.Sprite):
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
         self.rect.center = (266, 266)
-
+        
         
     def findPointOnCircle(self, deg):
         """ Returns the x,y coordinates of the corresponding angle (in degrees) """
@@ -288,6 +293,7 @@ rayScore = 0
 WolverchangeDirection = 0
 RaychangeDirection = 0
 Collide = False  
+
 
 def global_param_reset(): 
     '''
