@@ -48,7 +48,7 @@ class Pong(pygame.sprite.Sprite):
         if(debug):
             self.originalrect = pygame.draw.rect(self.image, self.color, (self.x, self.y, self.batdimx, \
                                                                           self.batdimy), 1)
-        
+
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
         self.rect.center = (266, 266)
@@ -143,8 +143,7 @@ class FireBall(pygame.sprite.Sprite):
             player, BallsLeft = self.resetBall(player, BallsLeft)
              
         # Move the image to where our x and y are
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.center = self.x, self.y
         
         '''If the rally continued for more than 5 times, 
             start increasing the speed of the ball to make it harder
@@ -237,7 +236,7 @@ class CMain():
         
         self.screen.blit(self.background,(0,0)) 
      
-    def renderfonts(self,wolverScore,rayScore,ballsleft):
+    def (self,wolverScore,rayScore,ballsleft):
                 # Render Scores        
         wolverScoreRender = self.scoreFont.render(str(wolverScore), True,(205,205,205))
         rayScoreRender = self.scoreFont.render(str(rayScore), True,(205,205,205)) 
@@ -530,4 +529,4 @@ def game(screen):
             
 
 if __name__ == "__main__":
-    game(screen, SCREEN_H, SCREEN_W)
+    game(screen)
