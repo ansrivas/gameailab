@@ -4,9 +4,11 @@ class CReflectCollid():
     def __init__(self):
         pass
     
-    def checkCollide(self,ballx,bally,batx,baty,batAngle,batLength,ballAngle):
+    def checkCollide(self, (ballx, bally), (batx, baty), batAngle, batLength, ballAngle):
+#    def checkCollide(self,ball,bat,batAngle,batLength,ballAngle):
     
-        
+#         ballx, bally = ball
+#         batx, baty = bat
         batLength = batLength #+ 28                                          #should also consider balls boundaries to check for collision
         distance = math.hypot( ( ballx - batx ) , ( bally - baty) )         #Distance between the ball and the bat
         
@@ -25,7 +27,7 @@ class CReflectCollid():
         
         return False
         
-    def reflectAngle(self,ballx,bally,batx,baty,batAngle,ballAngle):    
+    def reflectAngle(self, (ballx, bally), (batx, baty), batAngle, ballAngle):    
         
         
         incidence_angle = ballAngle - batAngle + np.pi/2.0                 #to find the incidence angle w.r.t to bat

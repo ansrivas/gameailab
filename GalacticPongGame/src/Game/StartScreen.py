@@ -4,10 +4,7 @@ from Game import IntroScene, GameSession
 from constants import *
 from abc import abstractmethod, ABCMeta
 
-
-# Set Screen Width and Screen Height
-screen = pygame.display.set_mode(RESOLUTION, 0,  32)
-
+SCREEN = pygame.display.set_mode(RESOLUTION, 0,  32)
 
 class TextSprites(pygame.sprite.Sprite):
     """ Abstract class of all other text sprite classes below """
@@ -30,14 +27,12 @@ class TextSprites(pygame.sprite.Sprite):
     @abstractmethod
     def update(self, *args):
         pass
-
         
     def setAlpha(self, ColorTone):
         self.image.set_alpha(ColorTone)
 
-
     @abstractmethod
-    def fadeIN(self, screen):
+    def fadeIN(self):
         pass
 
 
@@ -54,17 +49,14 @@ class GalacticText(TextSprites):
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
-
     def update(self):
         """ Called each frame. """    
         if(self.rect.y > SCREEN_H/3 -150):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
 
-
-    def fadeIN(self, screen):
-        screen.blit( self.image, ( SCREEN_W/3+10, SCREEN_H/3 ) )
-
+    def fadeIN(self):
+        SCREEN.blit(self.image, (SCREEN_W/3+10, SCREEN_H/3))
         
 
 class PongText(TextSprites):
@@ -80,7 +72,6 @@ class PongText(TextSprites):
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
-
     def update(self):
         """ Called each frame. """
     
@@ -88,10 +79,8 @@ class PongText(TextSprites):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
 
-
-    def fadeIN(self, screen):
-        screen.blit( self.image, ( SCREEN_W/3+220, SCREEN_H/3+100 ) )
-            
+    def fadeIN(self):
+        SCREEN.blit(self.image, (SCREEN_W/3+220, SCREEN_H/3+100))
             
     
 class Planet(TextSprites):
@@ -107,17 +96,15 @@ class Planet(TextSprites):
         # Get the rectangle enclosing this image
         self.rect = self.image.get_rect()
  
- 
     def update(self):
         """ Called each frame. """
     
         if(self.rect.y > SCREEN_H/3-150):
             #self.rect.x -= self.change_x
             self.rect.y -= self.change_y
-
             
-    def fadeIN(self, screen):
-        screen.blit( self.image, ( SCREEN_W/3-220, SCREEN_H/3 ) )
+    def fadeIN(self):
+        SCREEN.blit(self.image, (SCREEN_W/3-220, SCREEN_H/3))
 
         
 class MenuOption:
@@ -125,29 +112,25 @@ class MenuOption:
     hovered = False
     i = 0
     
-    def __init__(self, text, pos, screen):
+    def __init__(self, text, pos):
         self.text = text
         self.pos = pos
         self.set_rect()
-        self.draw(screen)
-        
+        self.draw()
             
-    def draw(self, screen):
+    def draw(self):
         self.set_rend()
-        screen.blit(self.rend, self.rect)
-
+        SCREEN.blit(self.rend, self.rect)
         
     def set_rend(self):
         menu_font = pygame.font.SysFont('Bizarre-Ass Font Sans Serif', 60)
         self.rend = menu_font.render(self.text, True, self.get_color())
-
         
     def get_color(self):
         if self.hovered:
             return (255, 165, 0)
         else:
             return (self.increase_color(), self.increase_color(), self.increase_color())
-
         
     def increase_color(self):
         if(self.i < 100):
@@ -162,6 +145,7 @@ class MenuOption:
 
         
 def main():
+    """ Starting point of startscreen """
     
     # Sound Initialization
     pygame.mixer.pre_init(44100, -16, 2, 4096)
@@ -171,19 +155,19 @@ def main():
     pygame.display.set_caption('Galactic Pong Introduction')
     
     # create background
-    global screen
-    background = pygame.Surface(screen.get_size()).convert()
+    global SCREEN
+    background = pygame.Surface(SCREEN.get_size()).convert()
     
     #  Playback song
     sounds = []
     sounds.append(pygame.mixer.Sound('./data/IntroTheme.ogg'))
     sounds.append(pygame.mixer.Sound('./data/MainTheme.wav'))
-    sounds[0].set_volume(0.3)
-    sounds[1].set_volume(0.3)
+    sounds[0].set_volume(MED_VOL)
+    sounds[1].set_volume(MED_VOL)
     
     warSounds = []
-    import glob
-    war_sounds = glob.glob("./data/WarSound*.wav")
+    from glob import glob
+    war_sounds = glob("./data/WarSound*.wav")
     for war_sound in war_sounds:
         warSounds.append(pygame.mixer.Sound(war_sound))
         
@@ -204,7 +188,6 @@ def main():
     PongTextSprite.rect.y = SCREEN_H/3+100
     
     ''' FIRE PLANET SPRITE '''
-    
     # This represents a block
     PlanetTextSprite = Planet()
       
@@ -213,8 +196,6 @@ def main():
     PlanetTextSprite.rect.y = SCREEN_H/3
     
     ''' add all sprites '''
-
-    # This is a list of every sprite. All blocks and the player block as well.
     all_sprites_list = pygame.sprite.Group(PlanetTextSprite, GalacticTextSprite, PongTextSprite)
     
     # create background
@@ -227,8 +208,8 @@ def main():
     ]
     
     # Create Menu Options
-    options = [MenuOption("NEW GAME", (SCREEN_W/3+50, SCREEN_H/2), screen), \
-               MenuOption("CONTROLS", (SCREEN_W/3+50, SCREEN_H/2+100), screen)]
+    options = [MenuOption("NEW GAME", (SCREEN_W/3+50, SCREEN_H/2)), \
+               MenuOption("CONTROLS", (SCREEN_W/3+50, SCREEN_H/2+100))]
     
     Total_Stars_shown = 1
 
@@ -237,11 +218,9 @@ def main():
     
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
-#    StartFrame = False
-    StartFrame = IntroScene.introScene(SCREEN_W,SCREEN_H,screen,sounds,warSounds,background)
+    StartFrame = IntroScene.introScene(SCREEN_W,SCREEN_H, SCREEN, sounds,warSounds,background)
     
-    # to detect mouse clicks
-    handled = False
+    handled = False         # to detect mouse clicks
     fullscreen = False
 
     while(StartFrame):
@@ -255,16 +234,15 @@ def main():
 
                 if keys[pygame.K_ESCAPE]:
                     if fullscreen:
-                        screen = pygame.display.set_mode(RESOLUTION, 0, 32)
+                        SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
                     fullscreen = not fullscreen
 
                 if keys[pygame.K_f] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
                     fullscreen = not fullscreen
                     if fullscreen:
-                        screen = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN, 32)
+                        SCREEN = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN, 32)
                     else:
-                        screen = pygame.display.set_mode(RESOLUTION, 0, 32)
-                
+                        SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
         
         background.fill((0,0,0))
         
@@ -282,32 +260,33 @@ def main():
         else:
             Total_Stars_shown = numStars
             
-        screen.blit(background, (0,0))
+        SCREEN.blit(background, (0,0))
         
         # Start Title FadeIn Effect when Total stars > N/3 
         # *** INCREASE 'ColorTone' value to speed up the fading ***
         
         if(Total_Stars_shown > numStars/3):
             # Image fadeIN effect
-            if(ColorTone<=255):
+            if ColorTone <= 255:
                 GalacticTextSprite.setAlpha(ColorTone)
                 PongTextSprite.setAlpha(ColorTone)
                 PlanetTextSprite.setAlpha(ColorTone)
                 ColorTone += 5
-            PlanetTextSprite.fadeIN(screen)
-            GalacticTextSprite.fadeIN(screen)
-            PongTextSprite.fadeIN(screen)
+
+            GalacticTextSprite.fadeIN()
+            PongTextSprite.fadeIN()
+            PlanetTextSprite.fadeIN()
         
         # Start moving the Title upwards when all stars are shown and ColorTone of Title is 255
-        if(ColorTone >= 255 and Total_Stars_shown > numStars/1.3):
+        if ColorTone >= 255 and Total_Stars_shown > numStars/1.3:
             ImageBackground.fill((0,0,0))
-            screen.blit(background, (208,242))
-            all_sprites_list.clear(screen, background)
+            SCREEN.blit(background, (208,242))
+            all_sprites_list.clear(SCREEN, background)
             all_sprites_list.update()
-            all_sprites_list.draw(screen)
+            all_sprites_list.draw(SCREEN)
 
 
-        if(GalacticTextSprite.rect.y <= SCREEN_H/3-150):
+        if GalacticTextSprite.rect.y <= SCREEN_H/3-150:
             for option in options:
                 if option.rect.collidepoint(pygame.mouse.get_pos()):
                     option.hovered = True
@@ -319,11 +298,12 @@ def main():
                     #Fades out the current sound and smoothly enters into the game
                     pygame.mixer.fadeout(2000)
                     StartFrame = False
-                    GameSession.game(screen)
+                    g = GameSession.Game()
+                    g.Run()
                     handled = pygame.mouse.get_pressed()[0]
                     
-                if(StartFrame):    
-                    option.draw(screen)
+                if  StartFrame:
+                    option.draw()
                                                                             
         pygame.display.flip()
         
