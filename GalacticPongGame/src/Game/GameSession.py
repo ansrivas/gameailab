@@ -27,7 +27,7 @@ sounds.append(pygame.mixer.Sound('./data/hitball.wav'))
 class Pong(pygame.sprite.Sprite):
     """ Sprite Class for Pong bats - WolverPong, RayPong """
 
-    def __init__(self, batImagePath, initialTheta, pongDimension=(50, 120), speed=2):
+    def __init__(self, batImagePath, initialTheta, pongDimension=(50, 120), speed=1):
         super(Pong, self).__init__()
       
         self.color = RED
@@ -40,6 +40,7 @@ class Pong(pygame.sprite.Sprite):
         self.image = pygame.image.load(batImagePath)
         self.score = 0
         self.changeDirection = 0
+        self.speed_factor = 1.0
 
         if debug:
             self.originalrect = pygame.draw.rect(self.image, self.color, (self.x, self.y, self.batdimx, \
@@ -59,6 +60,7 @@ class Pong(pygame.sprite.Sprite):
         return int(x),int(y)
     
     def update(self, changeDirection):
+        self.speed = self.speed * self.speed_factor
         if changeDirection == 1:
             self.theta += self.speed
         elif changeDirection == -1:
@@ -82,7 +84,7 @@ class Pong(pygame.sprite.Sprite):
         self.x = self.y = 0
         self.angle = 1
         self.theta =  initialTheta 
-        self.speed = 2
+        self.speed = 1
         self.rect.center = (266,266)
 
 
@@ -98,7 +100,7 @@ class FireBall(pygame.sprite.Sprite):
         self.rect.centerx, self.rect.centery = (100,100)
 
         # Speed in pixels per cycle
-        self.speedx = self.speedy = 3.0
+        self.speedx = self.speedy = 2.0
 
         # Floating point representation of where the ball is
         self.x, self.y = SCREEN_W/2, SCREEN_H/2
@@ -117,7 +119,7 @@ class FireBall(pygame.sprite.Sprite):
     def resetBall(self):
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
-        self.speedx = self.speedy = 3.0
+        self.speedx = self.speedy = 2.0
         self.angle = random.uniform(0, 2*math.pi)
         self.rally = 0
 
@@ -329,12 +331,16 @@ class Game():
                     ''' WolverPONG MOVEMENTS - A,D'''
                     if event.type == pygame.KEYDOWN:
                         keys = pygame.key.get_pressed()
-                        
+
                         if keys[pygame.K_a]:
                             self.WolverPong.changeDirection = 1
+                            ''' increase the speed in case of continues pressing'''
+                            self.WolverPong.speed_factor += 0.01
     
                         elif keys[pygame.K_d]:
                             self.WolverPong.changeDirection = -1
+                            ''' increase the speed in case of continues pressing'''
+                            self.WolverPong.speed_factor += 0.01
     
                         if self.MULTIPLAYER:
                             if keys[pygame.K_LEFT]:
@@ -380,9 +386,17 @@ class Game():
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_a:
                             self.WolverPong.changeDirection = 0
+                            ''' reset the speed back once the key is left'''
+                            self.WolverPong.speed = 1.0
+                            self.WolverPong.speed_factor = 1.0
+                        
+                   
     
                         elif event.key == pygame.K_d:
                             self.WolverPong.changeDirection = 0
+                            ''' reset the speed back once the key is left'''
+                            self.WolverPong.speed = 1.0
+                            self.WolverPong.speed_factor = 1.0
     
                         if self.MULTIPLAYER:
                             if event.key == pygame.K_LEFT:
