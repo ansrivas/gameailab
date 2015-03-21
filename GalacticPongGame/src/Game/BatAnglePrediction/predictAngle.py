@@ -1,6 +1,6 @@
 import math
 import numpy as np
-
+from Game.constants import *
 
 debug = False
 
@@ -14,31 +14,30 @@ class AnglePrediction():
         self.difference1 = 0.0
         self.difference2 = 0.0
         
-    def findBestFitAngle(self,ballAngle,x1,y1,x2,y2,xcenter,ycenter,radius):
-        
+    def findBestFitAngle(self,ballAngle, (x1,y1,x2,y2)):
         
         # Predict Angles using the points on circle
         ballAngle = np.rad2deg(ballAngle)
         
         # To find Angle from points - TECHNIQUE 1
-        '''self.angle1 = -math.atan2(y1 - ycenter, x1 - xcenter)
+        '''self.angle1 = -math.atan2(y1 - SCREEN_H/2, x1 - SCREEN_W/2)
         if(self.angle1 < 0):
                 self.angle1 += 2*math.pi
                 
                 
-        self.angle2 = -math.atan2(y2 - ycenter, x2 - xcenter)
+        self.angle2 = -math.atan2(y2 - SCREEN_H/2, x2 - SCREEN_W/2)
         if(self.angle2 < 0):
                 self.angle2 += 2*math.pi'''
         
         
         # To find Angle from points - TECHNIQUE 2
         if(ballAngle >= 0 and ballAngle <= 180):        
-            self.angle1 = math.atan2(abs(y1-ycenter), x1-xcenter)
+            self.angle1 = math.atan2(abs(y1-SCREEN_H/2), x1-SCREEN_W/2)
         
             if(self.angle1 < 0):
                 self.angle1 += 2*math.pi
                         
-            self.angle2 = math.atan2(abs(y2-ycenter), x2-xcenter)
+            self.angle2 = math.atan2(abs(y2-SCREEN_H/2), x2-SCREEN_W/2)
                             
             if(self.angle2 < 0):
                 self.angle2 += 2*math.pi
@@ -46,16 +45,15 @@ class AnglePrediction():
                 
                 
         if(ballAngle >= 181 and ballAngle <= 360):
-            self.angle1 = math.atan2(-abs(y1-ycenter), x1-xcenter)
+            self.angle1 = math.atan2(-abs(y1-SCREEN_H/2), x1-SCREEN_W/2)
         
             if(self.angle1 < 0):
                 self.angle1 += 2*math.pi
                         
-            self.angle2 = math.atan2(-abs(y2-ycenter), x2-xcenter)
+            self.angle2 = math.atan2(-abs(y2-SCREEN_H/2), x2-SCREEN_W/2)
                             
             if(self.angle2 < 0):
                 self.angle2 += 2*math.pi
-                
                 
         
         if(debug):    

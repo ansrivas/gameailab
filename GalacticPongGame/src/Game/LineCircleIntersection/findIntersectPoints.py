@@ -1,4 +1,5 @@
 import math
+from Game.constants import * 
 
 debug = False
 
@@ -25,15 +26,15 @@ class FindIntersection():
         self.angle2 = 0.0
     
     
-    def findQuadraticParameters(self,slope,xcenter,intermediateValue,radius):        
+    def findQuadraticParameters(self, slope, intermediateValue):        
         # find "a" 
         self.a = 1 + (slope**2)
         
         # find "b"
-        self.b = (-2*xcenter) + (2*slope*intermediateValue)
+        self.b = (-2*SCREEN_W/2) + (2*slope*intermediateValue)
         
         #find "c"
-        self.c = (xcenter**2) + (intermediateValue**2) - (radius**2)
+        self.c = ((SCREEN_W/2)**2) + (intermediateValue**2) - (RADIUS**2)
         
         if(debug):
             print "a : ",self.a
@@ -51,7 +52,7 @@ class FindIntersection():
         return math.sqrt(b**2 - 4*a*c)
         
     
-    def lineCircleIntersect(self,ballx1,bally1,ballx2,bally2,ballAngle,radius,xcenter,ycenter):
+    def lineCircleIntersect(self, (ballx1,bally1,ballx2,bally2), ballAngle):
         
         
         # Find slope of ball angle 
@@ -69,14 +70,14 @@ class FindIntersection():
             
             
         # Find intermediate value (Like a mid value from a derivation)
-        self.intermediateValue = -(self.slope*ballx1) + bally1 - ycenter
+        self.intermediateValue = -(self.slope*ballx1) + bally1 - SCREEN_H/2
         
         
         # Find a,b,c
-        self.a,self.b,self.c = self.findQuadraticParameters(self.slope,xcenter,self.intermediateValue,radius)
+        self.a,self.b,self.c = self.findQuadraticParameters(self.slope, self.intermediateValue)
         
         # Find Square root part in quadratic Formula
-        self.squareRootPart = self.solveSquareRootPart(self.a,self.b,self.c)
+        self.squareRootPart = self.solveSquareRootPart(self.a, self.b, self.c)
         
         
         # Use quadratic formula to find x 
