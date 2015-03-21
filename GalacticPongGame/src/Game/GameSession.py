@@ -23,6 +23,9 @@ sounds.append(pygame.mixer.Sound('./data/BallHit2.wav'))
 sounds.append(pygame.mixer.Sound('./data/BallOut1.wav'))
 sounds.append(pygame.mixer.Sound('./data/hitball.wav'))
 
+bombexplosion = pygame.mixer.Sound('./data/boom.wav')
+
+
 
 class Pong(pygame.sprite.Sprite):
     """ Sprite Class for Pong bats - WolverPong, RayPong """
@@ -152,6 +155,85 @@ class FireBall(pygame.sprite.Sprite):
         """ Increase the bat speed after a successful rally, so as to increase difficulty """
         self.speedx += 0.005
         self.speedy += 0.005
+        
+
+class CBombs(pygame.sprite.Sprite):
+    def __init__(self,loc,colortone=20):
+        super(CBombs,self).__init__()
+        self.image = pygame.image.load('./data/bomb.png').convert()
+        #self.image.set_alpha(colortone)
+        self.rect = self.image.get_rect()
+        self.rect.centerx, self.rect.centery = loc
+        self.explosion_frame = []
+        
+        sprite_sheet = SpriteSheet("./data/explosion.png") 
+        for y in range(1,6,1):
+            for i in range(1,6,1):
+                image = sprite_sheet.get_image(64*(i-1), 64*(y-1), 64, 64)
+                self.explosion_frame.append(image)
+
+        self.frame_num = 0 
+        #self.image = self.explosion_frame[self.frame_num]
+        # Set a referance to the image rect.
+        self.rect = self.image.get_rect()
+        self.rect.centerx, self.rect.centery = loc
+        self.interval = 0.05
+        self.playanimation = False
+        
+    def update(self):
+        if(self.playanimation == True):
+            self.play_burning_animation()
+        SCREEN.blit(self.image,self.rect)
+     
+    def play_burning_animation(self):
+        maxlen = len(self.explosion_frame)
+       
+        bombexplosion.play()
+        if(self.playanimation == True):
+            if(self.frame_num >= maxlen):
+                '''kill the sprites after animation is done playing'''
+                self.frame_num =0
+                self.playanimation = False
+                self.kill()
+            
+            else:               
+                self.image = self.explosion_frame[self.frame_num]
+                self.frame_num +=1
+                SCREEN.blit(self.image,self.rect)
+            
+        
+"""
+This module is used to pull individual sprites from sprite sheets.
+"""
+class SpriteSheet(object):
+    """ Class used to grab images out of a sprite sheet. """
+    # This points to our sprite sheet image
+    sprite_sheet = None
+ 
+    def __init__(self, file_name):
+        """ Constructor. Pass in the file name of the sprite sheet. """
+ 
+        # Load the sprite sheet.
+        self.sprite_sheet = pygame.image.load(file_name).convert()
+ 
+ 
+    def get_image(self, x, y, width, height):
+        """ Grab a single image out of a larger spritesheet
+            Pass in the x, y location of the sprite
+            and the width and height of the sprite. """
+ 
+        # Create a new blank image
+        image = pygame.Surface([width, height]).convert()
+ 
+        # Copy the sprite from the large sheet onto the smaller image
+        image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
+ 
+        # Assuming black works as the transparent color
+        image.set_colorkey(BLACK)
+ 
+        # Return the image
+        return image      
+        
 
 class Game():
 
@@ -205,7 +287,51 @@ class Game():
         self.OuterBigWhite = self.setCircles(self.OuterBigColorTone, (200,200,200,255), 4, \
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
 
+        self.bomb_group = pygame.sprite.Group()
+        self.cycletime = 0.0
+        
+        
+        '''call ths just once so as to randomly initialize obstacles'''
+        self.generateNbombsinCircle(5)
+        
+    def generateNbombsinCircle(self,num=3):
+        import pickle
+        with open('points.txt', 'rb') as f:
+            listofpoints = pickle.load(f)
+    
+        random.shuffle(listofpoints)
+        points = random.sample(listofpoints,num)
+        print len(points)
+        for p in points:
+            bomb = CBombs(p,colortone=120)
+            self.bomb_group.add(bomb) 
 
+            
+        '''
+        -----------------We need this code to generate N pooints inside the circel, current implementation is buggy------------
+        
+        listofpoints = []
+        
+        for x in range(SCREEN_W/2 - 280 ,SCREEN_W + 280) :
+            
+            for y in range(SCREEN_H/2 -280,SCREEN_H/2 + 280):
+
+                if   abs((x-SCREEN_W/2)+(y-SCREEN_H/2)*1j) <= 300:
+                    listofpoints.append((x,y))
+           
+        print len(listofpoints)    
+        random.shuffle(listofpoints)     
+        points = random.sample(listofpoints,num)
+        
+        for p in points:
+            bomb = CBombs(p,colortone=120)
+            self.bomb_group.add(bomb)            
+        with open('points.txt', 'wb') as f:
+            pickle.dump(listofpoints, f)
+        '''
+        
+        
+        
     def setCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
                         surfacePos=(200, 200), fill=BLACK, colorkey=BLACK):
         """ Draw circles at a given position with given properties """
@@ -255,6 +381,7 @@ class Game():
             SCREEN.blit(self.OuterWhite, (980,100,100,100))
             SCREEN.blit(self.InnerWhite, (980,100,100,100))
 
+     
     def delayGame(self, WolverScore, RayScore, ballsLeft, st, seconds=3):
         while(seconds > 0):
             self.blitstars()
@@ -298,11 +425,19 @@ class Game():
             self.RayPong.score = 0
             self.RayPong.changeDirection = 0
 
+    def check_bomb_ball_collide(self):
+            collide_list = pygame.sprite.spritecollide(self.fireBall,self.bomb_group,False)
+             
+            for block in collide_list:
+                block.playanimation = True
+                                
+                
+                
     def Run(self):
 #        assert 0, self.WolverPong.changeDirection
         #class which calculates the collision and reflection
         calculate = refcol.CReflectCollid()
-    
+        
         # Play Background Music
         sounds[0].set_volume(MED_VOL)
         sounds[0].play()
@@ -314,12 +449,11 @@ class Game():
         SCREEN.blit(self.background,(0,0))
         st = "Game starts in : "
 #        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
-    
+        FPS = 100                           # desired max. framerate in frames per second. 
+        playtime = 0
+        milliseconds =0
         while running:
-            #clock.tick(100)
-    #        time_passed = clock.tick(300)
-    #        time_sec = time_passed / 1000.0
-    
+
             # Change value if single player
             if not self.MULTIPLAYER:
                 player = 1
@@ -408,6 +542,7 @@ class Game():
     
     
             self.blitstars()
+            
             if self.gamestate == STOPPED:
                 self.render_stop_screen()
     
@@ -415,6 +550,8 @@ class Game():
                 self.render_pause_screen()
     
             if self.gamestate == RUNNING:
+                self.check_bomb_ball_collide()
+                
                 self.WolverPong.update(self.WolverPong.changeDirection)
                 if self.MULTIPLAYER:
                     self.RayPong.update(self.RayPong.changeDirection)
@@ -495,16 +632,18 @@ class Game():
                     self.gamestate = STOPPED
                     sounds[0].play()
                     self.global_param_reset()
-    
+            
+            self.bomb_group.update()
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
 
     
             pygame.display.flip()
-            clock.tick(100)
+            
+            clock.tick(100)  # milliseconds passed since last frame
 
 
-
+ 
 if __name__ == "__main__":
     g = Game()
     g.Run()
