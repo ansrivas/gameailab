@@ -158,10 +158,9 @@ class FireBall(pygame.sprite.Sprite):
         
 
 class CBombs(pygame.sprite.Sprite):
-    def __init__(self,loc,colortone=20):
+    def __init__(self,loc):
         super(CBombs,self).__init__()
         self.image = pygame.image.load('./data/bomb.png').convert()
-        #self.image.set_alpha(colortone)
         self.rect = self.image.get_rect()
         self.rect.centerx, self.rect.centery = loc
         self.explosion_frame = []
@@ -288,22 +287,35 @@ class Game():
                                                    radius=300, pos=(SCREEN_W/2,SCREEN_H/2), surfacePos=RESOLUTION)
 
         self.bomb_group = pygame.sprite.Group()
-        self.cycletime = 0.0
-        
-        
+        self.numofBombs = 5
+        self.points = None
+            
+                
         '''call ths just once so as to randomly initialize obstacles'''
-        self.generateNbombsinCircle(5)
+        self.generateNbombsinCircle(self.numofBombs)
+
+     
+    def resetBombLocation(self):
+        '''reset all the bomb location after the game is reset '''
+        random.shuffle(self.points)
+        points = random.sample(self.points,self.numofBombs)
         
+        self.bomb_group.empty()
+        for p in points:
+            bomb = CBombs(p)
+            self.bomb_group.add(bomb) 
+
+           
     def generateNbombsinCircle(self,num=3):
         import pickle
         with open('points.txt', 'rb') as f:
-            listofpoints = pickle.load(f)
+            self.points = pickle.load(f)
     
-        random.shuffle(listofpoints)
-        points = random.sample(listofpoints,num)
+        random.shuffle(self.points)
+        points = random.sample(self.points,num)
         
         for p in points:
-            bomb = CBombs(p,colortone=120)
+            bomb = CBombs(p)
             self.bomb_group.add(bomb) 
 
             
@@ -401,7 +413,10 @@ class Game():
         self.WolverPong.resetbat(180)
         if self.MULTIPLAYER:
             self.RayPong.resetbat(0)
+        self.resetBombLocation()
+        #call self.fireballreset in the end of this resetting sequence only
         self.fireBall.resetBall()
+        
 
     def render_pause_screen(self):
         renderPause = self.headingFont.render("Game Paused: press Space Bar to resume", True, (205,205,205))
@@ -498,6 +513,7 @@ class Game():
 
                         if keys[pygame.K_r] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
                             if self.gamestate == RUNNING or self.gamestate == PAUSED:
+                                self.resetGame()
                                 self.fireBall.resetBall()
                                 self.WolverPong.resetbat(180)
                                 if self.MULTIPLAYER:
@@ -509,11 +525,7 @@ class Game():
     
                         if keys[pygame.K_q] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
                             if self.gamestate == RUNNING or self.gamestate == PAUSED:
-                                scores = self.WolverPong.score, self.RayPong.score
-                                ballsLeft = self.ballsLeft
                                 self.resetGame()
-                                self.WolverPong.score, self.RayPong.score = scores
-                                self.ballsLeft = ballsLeft
                                 self.gamestate = STOPPED
 
                     elif event.type == pygame.KEYUP:
@@ -549,6 +561,7 @@ class Game():
                 self.render_pause_screen()
     
             if self.gamestate == RUNNING:
+                self.bomb_group.update()
                 self.check_bomb_ball_collide()
                 
                 self.WolverPong.update(self.WolverPong.changeDirection)
@@ -632,7 +645,7 @@ class Game():
                     sounds[0].play()
                     self.global_param_reset()
             
-            self.bomb_group.update()
+            
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
 
