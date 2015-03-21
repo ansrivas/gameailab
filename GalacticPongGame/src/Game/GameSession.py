@@ -301,22 +301,22 @@ class Game():
     
         random.shuffle(listofpoints)
         points = random.sample(listofpoints,num)
-        print len(points)
+        
         for p in points:
             bomb = CBombs(p,colortone=120)
             self.bomb_group.add(bomb) 
 
             
-        '''
-        -----------------We need this code to generate N pooints inside the circel, current implementation is buggy------------
         
+        #-----------------We need this code to generate N pooints inside the circel, current implementation is buggy------------
+        '''
         listofpoints = []
         
         for x in range(SCREEN_W/2 - 280 ,SCREEN_W + 280) :
             
             for y in range(SCREEN_H/2 -280,SCREEN_H/2 + 280):
 
-                if   abs((x-SCREEN_W/2)+(y-SCREEN_H/2)*1j) <= 300:
+                if   abs((x-SCREEN_W/2)+(y-SCREEN_H/2)*1j) <= 280:
                     listofpoints.append((x,y))
            
         print len(listofpoints)    
@@ -328,8 +328,7 @@ class Game():
             self.bomb_group.add(bomb)            
         with open('points.txt', 'wb') as f:
             pickle.dump(listofpoints, f)
-        '''
-        
+        '''        
         
         
     def setCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
