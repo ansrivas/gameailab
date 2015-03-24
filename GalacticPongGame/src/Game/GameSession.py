@@ -123,7 +123,8 @@ class FireBall(pygame.sprite.Sprite):
         self.speedx = self.speedy = DEFAULT_BALL_SPEED
 
         # Direction of ball in degrees
-        self.angle = int(np.rad2deg(np.random.uniform(0, 2*np.pi)))
+#        self.angle = int(np.rad2deg(np.random.uniform(0, 2*np.pi)))
+        self.angle = 330
 
         # Ball gets reset if it crosses off this value outside the ring
         self.offset = 70
@@ -630,12 +631,12 @@ class Game():
 
                             collide = pygame.sprite.collide_rect(self.fireBall, self.WolverPong)
                             if collide:
-#                                print "collision at {}".format(self.WolverPong.rect.center)
+                                print "collision at {}".format(self.WolverPong.rect.center)
                                 sounds[4].play()
                                 self.WolverPong.score += 1
                                 self.fireBall.angle, self.fireBall.target = calculate.reflectAngle(self.WolverPong.rect.center, \
                                                                              self.fireBall.lastCollisonPoint)
-#                                print "reflected {}' and hitting at {}".format(self.fireBall.angle, self.fireBall.target)
+                                print "reflected {}' and hitting at {}".format(self.fireBall.angle, self.fireBall.target)
                                 self.fireBall.lastCollisonPoint = self.WolverPong.rect.center
 #                                 self.fireBall.lastCollisonPoint = (self.WolverPong.rect.center[0] + self.WolverPong.batdimx/2, \
 #                                                                    self.WolverPong.rect.center[1] + self.WolverPong.batdimy/2)
@@ -667,7 +668,7 @@ class Game():
                                     elif AI_turn:
                                         print "AI Turn"
                                         self.predictedBatAngle = self.fireBall.angle  # findAngle(findPointOnCircle(self.fireBall.angle))
-#                                    print "predicted collison point {}".format(findPointOnCircle(self.predictedBatAngle))
+                                    print "predicted collison point {}".format(findPointOnCircle(self.predictedBatAngle))
                                     way1 = abs(self.batAngle - self.predictedBatAngle)
                                     way2 = 360 - way1
                                     
