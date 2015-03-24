@@ -14,6 +14,20 @@ class AnglePrediction():
         self.difference1 = 0.0
         self.difference2 = 0.0
         
+        
+    def predictbatangle(self,pointp):
+        y = pointp[1]-SCREEN_H/2
+        x = pointp[0]-SCREEN_W/2
+        print "original points are :", pointp
+        #if( x > 0 and y > 0):
+        angle  = -np.rad2deg(np.arctan2(y,x))
+        if(angle < 0):
+            angle =  360 +angle
+        print "angle from center is", int(np.round(angle))
+        return int(np.round(angle))
+    
+    
+        
     def findBestFitAngle(self,ballAngle, (x1,y1,x2,y2)):
         
         # Predict Angles using the points on circle

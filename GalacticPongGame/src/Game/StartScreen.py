@@ -3,7 +3,6 @@ import random
 from Game import IntroScene, GameSession
 from constants import *
 from abc import abstractmethod, ABCMeta
-
 SCREEN = pygame.display.set_mode(RESOLUTION, 0,  32)
 
 class TextSprites(pygame.sprite.Sprite):

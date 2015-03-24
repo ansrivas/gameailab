@@ -1,6 +1,8 @@
 import numpy as np
 import skfuzzy as fuzz
 import matplotlib.pyplot as plt
+import skfuzzy
+
 
 class Fuzzy():
     
@@ -39,6 +41,12 @@ class Fuzzy():
     
     def getFuzzyAcceleration(self,currentBatAngle,predictedBatAngle):
         
+        dif = abs(currentBatAngle - predictedBatAngle)
+        if(dif > 180):
+            self.InputDistanceAngle = 360- dif
+        else:
+            self.InputDistanceAngle = dif
+        '''    
         self.thetaOne = abs(currentBatAngle-predictedBatAngle)
         self.thetaTwo = currentBatAngle + (360-predictedBatAngle)
         
@@ -46,17 +54,21 @@ class Fuzzy():
             self.InputDistanceAngle = self.thetaOne
         else:
             self.InputDistanceAngle = self.thetaTwo
-            
+        '''
+               
         self.InputDistanceAngle = int(self.InputDistanceAngle)
-            
-        print self.InputDistanceAngle
+         
+        #print "final angle to cover----",int(self.InputDistanceAngle)
+        #print "buggy parth=============",self.R_combined[self.distance == self.InputDistanceAngle]
             
         self.OutputAcceleration = fuzz.defuzz(self.acceleration,self.R_combined[self.distance == self.InputDistanceAngle], 'centroid')
         
-        print self.InputDistanceAngle,self.OutputAcceleration
+        #print "correspoinding acceleration",self.OutputAcceleration
         
         return self.OutputAcceleration
     
+        #test code starts here
+        '''
         self.predicted_acceleration = np.zeros_like(self.distance)
 
         for i in range(len(self.predicted_acceleration)):
@@ -89,3 +101,4 @@ class Fuzzy():
             self.plt.ylabel('Acceleration')
             self.plt.show()
             plt.savefig('Prediction.png')
+        '''
