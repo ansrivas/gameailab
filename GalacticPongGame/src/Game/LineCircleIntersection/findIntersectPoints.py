@@ -83,7 +83,7 @@ class FindIntersection():
         return math.sqrt(b**2 - 4*a*c)
         
     
-    def lineCircleIntersect(self, (ballx1,bally1,ballx2,bally2), ballAngle,oppositeBat):
+    def lineCircleIntersect(self, (ballx1,bally1,ballx2,bally2), ballAngle):
         
         
         # Find slope of ball angle 
@@ -125,14 +125,11 @@ class FindIntersection():
             print "x2 y2 :",self.x2,self.y2
         
 
+ 
+        d3 = ((self.x1 - ballx1)**2 + (self.y1 - bally1)**2)**0.5
+        d6 = ((self.x1 - ballx2)**2 + (self.y1 - bally2)**2)**0.5
         
-        d1 = ((self.x1 - oppositeBat[0])**2 + (self.y1 - oppositeBat[1])**2)**0.5
-        d2 = ((self.x2 - oppositeBat[0])**2 + (self.y2 - oppositeBat[1])**2)**0.5
-        
-        if(d1<d2):
-            pointp =  (self.x2,self.y2)
+        if(d3 < d6):
+            return (self.x2,self.y2)
         else:
-            pointp = (self.x1,self.y1)
-        
-        return (self.x1,self.y1,self.x2,self.y2),pointp
-        
+            return (self.x1,self.y1)

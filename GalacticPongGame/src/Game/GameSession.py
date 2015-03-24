@@ -17,8 +17,7 @@ SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
 '''
 log = Output()
 debug = False
-
-
+POINTCOUNT =0
 #  Playback sound
 sounds = []
 sounds.append(pygame.mixer.Sound('./data/GameBackground.wav'))
@@ -123,21 +122,25 @@ class FireBall(pygame.sprite.Sprite):
         after this to make it harder
         '''
         self.rally = 0
+        # To get points on the ball's trajectory 
+        self.pointCount = 0
         
     def resetBall(self):
+        self.pointCount = 0
         self.x = SCREEN_W/2
         self.y = SCREEN_H/2
         self.speedx = self.speedy = 2.0
         self.rect.centerx, self.rect.centery = (SCREEN_W/2 ,SCREEN_H/2 )
         self.angle = random.uniform(0, 2*math.pi)
         self.rally = 0
+   
 
     def update(self, player, ballsLeft):
         # Change the position (x and y) according to the speed and direction
         self.x += math.cos(self.angle) * self.speedx
         self.y -= math.sin(self.angle) * self.speedy
-  
         # Reset the ball position if it goes out of the circle (+ offset value)
+        #self.hack = False
         if math.sqrt((self.x - SCREEN_W/2)**2 + (self.y - SCREEN_H/2)**2) >= (RADIUS + self.offset):
             self.resetBall()
             player *= -1
@@ -260,9 +263,7 @@ class Game():
         ]
  
         """ AI Parameters """
-        # To get points on the ball's trajectory 
-        self.pointCount = 0
-        
+
         # Self.ball contains (x1,y1, x2, y2)
         self.ball = np.zeros(4)
         # Predicted Bat points and angle
@@ -501,15 +502,12 @@ class Game():
         sounds[0].play()
     
         #Player turns
-        player = 1
+        player = -1
         running = True
         clock = pygame.time.Clock()
         SCREEN.blit(self.background,(0,0))
         st = "Game starts in : "
 #        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
-        FPS = 100                           # desired max. framerate in frames per second. 
-        playtime = 0
-        milliseconds =0    
 
         while running:
 
@@ -634,7 +632,8 @@ class Game():
     
                 # Change turn if player loses the ball
                 player, self.ballsLeft = self.fireBall.update(player, self.ballsLeft)
-    
+                
+               
                 if self.ballsLeft > 0:
                                         
                     #If collided, don't check for collision for next few iterations
@@ -642,7 +641,7 @@ class Game():
                         # WolverPong's Turn
                         if player == 1:
                             # Revert count after change in turn
-                            self.pointCount = 0 
+                            self.fireBall.pointCount = 0 
                                          
                             
                             # Draw Background Circle
@@ -683,36 +682,29 @@ class Game():
                                     self.batTheta = int(np.round(self.RayPong.theta))
                                     
                                     # Get any point on ball's trajectory, In our case "3"
-                                    if(self.pointCount == 3):
+                                    if(self.fireBall.pointCount == 3):
                                         self.ballAngle = self.fireBall.angle 
                                         
                                         self.ball[:2] = self.fireBall.rect.center
+                                        
                                     # Get another point on ball's trajectory, In our case "6"    
-                                    if(self.pointCount == 6):
+                                    if(self.fireBall.pointCount == 6):
                                         
-                                        self.ball[2:] = self.fireBall.rect.center                          
+                                        self.ball[2:] = self.fireBall.rect.center  
+                                                           
                                         # Predict bat coordinates according to ball angle
-                                        self.predictedBatPoint,pointp = intersect.lineCircleIntersect(self.ball, self.ballAngle,self.WolverPong.rect.center)
-                                        
-                                        #print self.predictedBatPoint,"points predicted----------------"
-                                              
-                                        # Get the Best Fit Bat Point and Angle
-                                        self.predictedBatAngle, self.predictedBatPointFinalX, self.predictedBatPointFinalY = \
-                                                                predictAngle.findBestFitAngle(self.ballAngle, \
-                                                                                              self.predictedBatPoint)
-                                        
-                                        self.predictedBatTheta=  predictAngle.predictbatangle(pointp)
-                                        
-                                        self.predictedBatAngle = int(np.rad2deg(self.predictedBatAngle))
-                            
+                                     
+                                        self.predictedBatPoint = intersect.lineCircleIntersect(self.ball, self.ballAngle)
+                              
+                                        self.predictedBatTheta=  predictAngle.predictbatangle(self.predictedBatPoint)
+                 
                                         self.batAngle = np.rad2deg(self.batAngle)
                                  
                                         acceleration = fuzzyAcceleration.getFuzzyAcceleration(self.batAngle, self.predictedBatTheta)
                                         
-                                    self.pointCount += 1
                                     
                                     # After getting the Best Fit , move Bat
-                                    if(self.pointCount >6):
+                                    if(self.fireBall.pointCount >6):
                                         self.batAngle = int(np.rad2deg(self.batAngle))
                                         self.RayPong.changeDirection = predictDirection.directionToPredict(self.batAngle, self.predictedBatTheta)
                                         self.RayPong.speed_factor = self.RayPong.speed + acceleration
@@ -720,7 +712,6 @@ class Game():
                                         # If bat has reached it's target, reset speed and acceleration 
                                         # To avoid bat moving front and back, we use lots of If's(can be optimized) 
                                         if(  self.RayPong.changeDirection == 0):
-                                            #print "point on circle------------------", self.RayPong.findPointOnCircle(self.batAngle)
                                             self.RayPong.speed = 1
                                             self.RayPong.speed_factor = 1
  
@@ -729,7 +720,8 @@ class Game():
                                         if(debug):
                                             print "BAT POINTS PREDICTED : ",self.predictedBatPoint
                                             print "Current Bat Angle : ",self.batAngle,"Current Ball Angle : ",np.rad2deg(self.fireBall.angle),"Predicted Bat Angle : ",self.predictedBatAngle
-    
+                                    self.fireBall.pointCount += 1
+                                
                                 # Check Collision
                                 Collide = calculate.checkCollide(self.fireBall.rect.center, \
                                                                  self.RayPong.rect.center, \
@@ -797,7 +789,7 @@ class Game():
                     sounds[0].play()
                     self.global_param_reset()
             
-            
+                
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
 
