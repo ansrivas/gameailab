@@ -1,7 +1,7 @@
 import pygame
+
 class CBackground():
     def __init__(self,(x,y),size,width,color):
-
         self.size = size
         self.width = width
         self.color = color
@@ -11,8 +11,8 @@ class CBackground():
         self.x,self.y = self.imagerect.center
         self.imagerect.center = (x,y)
         self.x, self.y = (x,y)
+
     def update(self,screen,myimage):
-        
         self.myimage = pygame.image.load("./data/"+myimage+".png")
         screen.blit(self.myimage, self.imagerect)
         #use it to produce game-over effects for few seconds
