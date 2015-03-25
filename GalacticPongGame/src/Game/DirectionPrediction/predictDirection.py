@@ -26,7 +26,7 @@ class Direction():
                 self.direction = 1                   
             
         #the angle between batangle and predicted batangle became too small, so dont change the directions now
-        if (way1 < 1.2):
+        if (way1 < 1.5):
             self.direction = 0
         return self.direction
             

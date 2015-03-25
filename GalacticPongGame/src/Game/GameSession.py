@@ -752,7 +752,7 @@ class Game():
                     if self.mode == AUTO: 
                         if(player != -1):
                                 # We have a count to make it look smooth and human Like
-                                if(self.aiMoveCount > 20):
+                                if(self.aiMoveCount > 6):
                                     if(self.WolverPong.angle >= 180):
                                         self.beforePredictedBatPointAngle = self.WolverPong.angle - 180
                                     elif(self.WolverPong.angle < 180):
@@ -760,13 +760,9 @@ class Game():
                                         
                                     self.RayPong.speed_factor = 1.0
                                     self.RayPong.changeDirection = predictDirection.directionToPredict(self.RayPong.angle, self.beforePredictedBatPointAngle)
-                                    if(self.WolverPong.angle == self.beforePredictedBatPointAngle or \
-                                       self.WolverPong.angle+1 == self.beforePredictedBatPointAngle or \
-                                       self.WolverPong.angle-1 == self.beforePredictedBatPointAngle or \
-                                       self.WolverPong.angle+2 == self.beforePredictedBatPointAngle or \
-                                       self.WolverPong.angle-2 == self.beforePredictedBatPointAngle):
-                                            self.RayPong.speed = 1.0
-                                            self.RayPong.speed_factor = 1.0
+                                    if(  self.RayPong.changeDirection == 0):
+                                            self.RayPong.speed = 1
+                                            self.RayPong.speed_factor = 1
                                     self.RayPong.update(self.RayPong.changeDirection)
                                
                             
