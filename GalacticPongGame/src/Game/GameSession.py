@@ -17,7 +17,7 @@ SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
 '''
 log = Output()
 debug = False
-POINTCOUNT =0
+
 #  Playback sound
 sounds = []
 sounds.append(pygame.mixer.Sound('./data/GameBackground.wav'))
@@ -50,20 +50,19 @@ class Pong(pygame.sprite.Sprite):
         self.speed_factor = 1.0
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
-        self.rect.center = (266, 266)
         
     def findPointOnCircle(self, deg):
         """ Returns the x,y coordinates of the corresponding angle (given in degrees) """
 
         rad = np.deg2rad(deg)
-        x = (SCREEN_W/2) + 320 * math.cos(rad)
-        y = (SCREEN_H/2) - 320 * math.sin(rad)
+        x = (SCREEN_W/2) + RADIUS * math.cos(rad)
+        y = (SCREEN_H/2) - RADIUS * math.sin(rad)
 
         return int(x),int(y)
     
     def update(self, changeDirection):
-        if(self.speed < self.maxSpeed):
-            self.speed = self.speed * self.speed_factor
+        if self.speed < self.maxSpeed:
+            self.speed *= self.speed_factor
         else:
             self.speed = self.maxSpeed
         
@@ -78,21 +77,17 @@ class Pong(pygame.sprite.Sprite):
         if self.theta >= 360:
             self.theta = 0
         
-         
-        self.angle  = float(self.theta) #- float(self.batdimx/213)
+        self.angle  = float(self.theta)
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.rect = self.rot.get_rect()
         self.rect.center = self.findPointOnCircle(self.theta)
         SCREEN.blit(self.rot, self.rect)
  
     def resetbat(self, initialTheta):
-        """ Reset Bat's properties like Position, Speed etc. """
+        """ Reset Bat's properties - give 'theta' in degrees """
 
-        self.x = self.y = 0
-        self.angle = 1
         self.theta =  initialTheta 
         self.speed = 1
-        self.rect.center = (266,266)
 
 
 class FireBall(pygame.sprite.Sprite):
@@ -104,19 +99,21 @@ class FireBall(pygame.sprite.Sprite):
          
         self.image = pygame.image.load(ballImage)
         self.rect = self.image.get_rect()
-        self.rect.centerx, self.rect.centery = (SCREEN_W/2 ,SCREEN_H/2 )
+        
+        # Set an offset and start the ball around the center of the ring with given offset
+        self.center_offset = 30
+        self.rect.center = (SCREEN_W/2 + np.random.randint(20, self.center_offset), \
+                            SCREEN_H/2 - np.random.randint(20, self.center_offset))
+        self.x, self.y = self.rect.center
 
         # Speed in pixels per cycle
-        self.speedx = self.speedy = 2.0
+        self.speedx = self.speedy = DEFAULT_BALL_SPEED
 
-        # Floating point representation of where the ball is
-        self.x, self.y = SCREEN_W/2, SCREEN_H/2
-         
-        # Direction of ball in degrees
+        # Direction of ball in radians
         self.angle = random.uniform(0, 2*math.pi)
         
+        # Offset values (in pixels) to reset the ball once it crosses this much outside the ring
         self.offset = 70
-        
         '''
         This is the case where rally has been increased to a 20, start increasing the speed 
         after this to make it harder
@@ -127,10 +124,10 @@ class FireBall(pygame.sprite.Sprite):
         
     def resetBall(self):
         self.pointCount = 0
-        self.x = SCREEN_W/2
-        self.y = SCREEN_H/2
-        self.speedx = self.speedy = 2.0
-        self.rect.centerx, self.rect.centery = (SCREEN_W/2 ,SCREEN_H/2 )
+        self.speedx = self.speedy = DEFAULT_BALL_SPEED
+        self.rect.center = (SCREEN_W/2 + np.random.randint(20, self.center_offset), \
+                            SCREEN_H/2 - np.random.randint(20, self.center_offset))
+        self.x, self.y = self.rect.center
         self.angle = random.uniform(0, 2*math.pi)
         self.rally = 0
    
@@ -139,8 +136,8 @@ class FireBall(pygame.sprite.Sprite):
         # Change the position (x and y) according to the speed and direction
         self.x += math.cos(self.angle) * self.speedx
         self.y -= math.sin(self.angle) * self.speedy
+
         # Reset the ball position if it goes out of the circle (+ offset value)
-        #self.hack = False
         if math.sqrt((self.x - SCREEN_W/2)**2 + (self.y - SCREEN_H/2)**2) >= (RADIUS + self.offset):
             self.resetBall()
             player *= -1
@@ -149,7 +146,7 @@ class FireBall(pygame.sprite.Sprite):
         # Move the image to where our x and y are
         self.rect.center = self.x, self.y
         
-        '''If the rally continued for more than 5 times, 
+        '''If the rally continued for more than 3 times, 
             start increasing the speed of the ball to make it harder
         '''
         if self.rally > 0:
@@ -167,6 +164,8 @@ class FireBall(pygame.sprite.Sprite):
         
 
 class CBombs(pygame.sprite.Sprite):
+    """ Class for generating  and managing Bombs """
+    
     def __init__(self,loc):
         super(CBombs,self).__init__()
         self.image = pygame.image.load('./data/bomb.png').convert()
@@ -189,7 +188,7 @@ class CBombs(pygame.sprite.Sprite):
         self.playanimation = False
         
     def update(self):
-        if(self.playanimation == True):
+        if self.playanimation:
             self.play_burning_animation()
         SCREEN.blit(self.image,self.rect)
      
@@ -197,8 +196,8 @@ class CBombs(pygame.sprite.Sprite):
         maxlen = len(self.explosion_frame)
        
         bombexplosion.play()
-        if(self.playanimation == True):
-            if(self.frame_num >= maxlen):
+        if self.playanimation:
+            if self.frame_num >= maxlen:
                 '''kill the sprites after animation is done playing'''
                 self.frame_num =0
                 self.playanimation = False
@@ -209,12 +208,10 @@ class CBombs(pygame.sprite.Sprite):
                 self.frame_num +=1
                 SCREEN.blit(self.image,self.rect)
             
-        
-"""
-This module is used to pull individual sprites from sprite sheets.
-"""
+
 class SpriteSheet(object):
-    """ Class used to grab images out of a sprite sheet. """
+    """ Class used to grab images (individual sprites) out of a sprite sheet. """
+
     # This points to our sprite sheet image
     sprite_sheet = None
  
@@ -243,20 +240,28 @@ class SpriteSheet(object):
         return image      
         
 
-class Game():
-
+class Game:
+    """ Main Class that contains Game related methods """
+    
     def __init__(self):
-        """ Initialize the main game state """
+        """ Initialize the game state """
         # Sound Initialization
         pygame.mixer.pre_init(44100, -16, 2, 4096)
 
         pygame.init()
         pygame.display.set_caption('Galactic Pong')
 
-        self.mode = AUTO
-        self.gamestate = RUNNING
+        # Set it TRUE to enable multiplayer
         self.MULTIPLAYER = True
+
+        # set it 'AUTO' to play with AI, or 'MANUAL' to play with another human player 
+        self.mode = AUTO
+        
+        self.gamestate = RUNNING
+        
+        # Currently Random value is set... Can connect to DB...
         self.highScore = 100
+        
         self.stars = [
             [random.randint(0, SCREEN_W), random.randint(0, SCREEN_H)]
             for _ in range(numStars)
@@ -266,8 +271,10 @@ class Game():
 
         # Self.ball contains (x1,y1, x2, y2)
         self.ball = np.zeros(4)
+        
         # Predicted Bat points and angle
         self.ballAngle = self.batAngle = 0.0
+        
         # Self.predictedBatPoint contains (x1,y1, x2, y2)
         self.predictedBatPoint = np.zeros(4)
 
@@ -280,10 +287,6 @@ class Game():
         
         # Predicted angle of AI bat, before AI player's turn
         self.beforePredictedBatPointAngle = 0.0
-        
-        
-        
-        
         
         self.background = pygame.Surface(SCREEN.get_size()).convert()
 
@@ -325,12 +328,13 @@ class Game():
         self.points = None
             
                 
-        '''call ths just once so as to randomly initialize obstacles'''
+        '''call this just once so as to randomly initialize obstacles'''
         self.generateNbombsinCircle(self.numofBombs)
 
      
     def resetBombLocation(self):
-        '''reset all the bomb location after the game is reset '''
+        """ reset all the bomb location after the game is reset """
+
         random.shuffle(self.points)
         points = random.sample(self.points,self.numofBombs)
         
@@ -340,7 +344,7 @@ class Game():
             self.bomb_group.add(bomb) 
 
            
-    def generateNbombsinCircle(self,num=3):
+    def generateNbombsinCircle(self, num=3):
         import pickle
         with open('points.txt', 'rb') as f:
             self.points = pickle.load(f)
@@ -350,9 +354,7 @@ class Game():
         
         for p in points:
             bomb = CBombs(p)
-            self.bomb_group.add(bomb) 
-
-            
+            self.bomb_group.add(bomb)
         
         #-----------------We need this code to generate N points inside the circle, current implementation is buggy------------
         '''
@@ -403,7 +405,7 @@ class Game():
         SCREEN.blit(self.background,(0,0))
 
     def renderScores(self, ballsLeft, WolverScore, RayScore=None):
-        """ Render Scores """
+        """ Blit Scores in generated score circles """
 
         BallsLeftRender = self.headingFont.render("BALLS LEFT : " +str(ballsLeft), True, (205,205,205))
         HighScoreRender = self.headingFont.render("HIGHSCORE : " +str(self.highScore), True, (205,205,205))
@@ -428,6 +430,8 @@ class Game():
 
      
     def delayGame(self, WolverScore, RayScore, ballsLeft, st, seconds=3):
+        """ Delay the game (in seconds) for a certain given time (Default: 3) """
+        
         while(seconds > 0):
             self.blitstars()
             self.render_score_circles()
@@ -440,7 +444,9 @@ class Game():
             seconds -=1
 
     def resetGame(self):
-        self.global_param_reset()
+        """ Reset entire game state """
+
+        self._global_param_reset()
         self.gamestate = None
         self.MULTIPLAYER = True
 
@@ -448,6 +454,7 @@ class Game():
         if self.MULTIPLAYER:
             self.RayPong.resetbat(0)
         self.resetBombLocation()
+        
         #call self.fireballreset in the end of this resetting sequence only
         self.fireBall.resetBall()
         
@@ -460,7 +467,7 @@ class Game():
         renderStop = self.headingFont.render("Game Stopped: press Space Bar to restart", True, (205,205,205))
         SCREEN.blit(renderStop,(380.,100.))
 
-    def global_param_reset(self):
+    def _global_param_reset(self):
         """ Reset all parameters which are being used in main game loop """
 
         self.ballsLeft = TOTAL_BALLS
@@ -474,20 +481,20 @@ class Game():
             self.RayPong.changeDirection = 0
 
     def check_bomb_ball_collide(self):
-            collide_list = pygame.sprite.spritecollide(self.fireBall,self.bomb_group,False)
-             
-            for block in collide_list:
-                block.playanimation = True
-                                
-                
+        collide_list = pygame.sprite.spritecollide(self.fireBall, self.bomb_group, False)
+         
+        for block in collide_list:
+            block.playanimation = True
                 
     def Run(self):
-#        assert 0, self.WolverPong.changeDirection
+        """ Run the game """
+        
         #class which calculates the collision and reflection
         calculate = refcol.CReflectCollid()
         
         #class for Line Circle Intersection
         intersect = PointsIntersect.FindIntersection()
+
         #class to Predict the correct angle 
         predictAngle = predictBatAngle.AnglePrediction()
         
@@ -501,12 +508,12 @@ class Game():
         sounds[0].set_volume(MED_VOL)
         sounds[0].play()
     
-        #Player turns
-        player = -1
+        #Player turns - 1, -1 for WolverPong and RayPong respectively
+        player = 1
         running = True
         clock = pygame.time.Clock()
         SCREEN.blit(self.background,(0,0))
-        st = "Game starts in : "
+#        st = "Game starts in : "
 #        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
 
         while running:
@@ -524,14 +531,14 @@ class Game():
                         keys = pygame.key.get_pressed()
 
                         if keys[pygame.K_a]:
-                            if(player == 1):
+                            if player == 1:
                                 self.aiMoveCountIncrease = 1
                             self.WolverPong.changeDirection = 1
                             ''' increase the speed in case of continues pressing'''
                             self.WolverPong.speed_factor = 1.01
     
                         elif keys[pygame.K_d]:
-                            if(player == 1):
+                            if player == 1:
                                 self.aiMoveCountIncrease = 1
                             self.WolverPong.changeDirection = -1
                             ''' increase the speed in case of continues pressing'''
@@ -562,53 +569,33 @@ class Game():
                                 self.gamestate = RUNNING
 
                         if keys[pygame.K_r] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
-                            if self.gamestate == RUNNING or self.gamestate == PAUSED:
+                            if (self.gamestate == RUNNING) or (self.gamestate == PAUSED):
                                 self.resetGame()
-                                self.fireBall.resetBall()
-                                self.WolverPong.resetbat(180)
-                                if self.MULTIPLAYER:
-                                    self.RayPong.resetbat(0)                                
-
                                 st = "Resetting in: "
                                 self.delayGame(self.WolverPong.score, self.RayPong.score, self.ballsLeft, st)
                                 self.gamestate = RUNNING
     
                         if keys[pygame.K_q] and (keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]):
-                            if self.gamestate == RUNNING or self.gamestate == PAUSED:
+                            if (self.gamestate == RUNNING) or (self.gamestate == PAUSED):
                                 self.resetGame()
                                 self.gamestate = STOPPED
 
                     elif event.type == pygame.KEYUP:
-                        if event.key == pygame.K_a:
-                            if(player == 1):
+                        if (event.key == pygame.K_a) or (event.key == pygame.K_d):
+                            if player == 1:
                                 self.aiMoveCountIncrease = 0
                                 self.aiMoveCount = 0
                             self.WolverPong.changeDirection = 0
                             ''' reset the speed back once the key is left'''
                             self.WolverPong.speed = 1.0
                             self.WolverPong.speed_factor = 1.0
-    
-                        elif event.key == pygame.K_d:
-                            if(player == 1):
-                                self.aiMoveCountIncrease = 0
-                                self.aiMoveCount = 0
-                            self.WolverPong.changeDirection = 0
-                            ''' reset the speed back once the key is left'''
-                            self.WolverPong.speed = 1.0
-                            self.WolverPong.speed_factor = 1.0
-    
+
                         if self.MULTIPLAYER:
                             if self.mode == MANUAL:
-                                if event.key == pygame.K_LEFT:
+                                if (event.key == pygame.K_LEFT) or (event.key == pygame.K_RIGHT):
                                     self.RayPong.changeDirection = 0
                                     self.RayPong.speed = 1.0
                                     self.RayPong.speed_factor = 1.0
-        
-                                elif event.key == pygame.K_RIGHT:
-                                    self.RayPong.changeDirection = 0
-                                    self.RayPong.speed = 1.0
-                                    self.RayPong.speed_factor = 1.0
-    
             
             self.aiMoveCount += self.aiMoveCountIncrease
             self.blitstars()
@@ -635,28 +622,25 @@ class Game():
                 
                
                 if self.ballsLeft > 0:
-                                        
                     #If collided, don't check for collision for next few iterations
                     if self.ignoreCollide == 0:
                         # WolverPong's Turn
                         if player == 1:
                             # Revert count after change in turn
-                            self.fireBall.pointCount = 0 
-                                         
+                            self.fireBall.pointCount = 0
                             
                             # Draw Background Circle
                             SCREEN.blit(self.OuterBigOrange,(0,0))
                             SCREEN.blit(self.InnerBigOrange,(0,0))
     
                             # Check Collision
-                            Collide = calculate.checkCollide(self.fireBall.rect.center, \
-                                                             self.WolverPong.rect.center, \
-                                                             np.deg2rad(self.WolverPong.angle),120,self.fireBall.angle)
+#                            Collide = pygame.sprite.collide_rect(self.fireBall, self.WolverPong)
+                            Collide = calculate.checkCollide(self.fireBall.rect.center, self.WolverPong.rect.center, \
+                                                             np.deg2rad(self.WolverPong.angle),self.WolverPong.batdimy, \
+                                                             self.fireBall.angle)
     
                             if Collide:
-                                # Increase Score by 1
                                 self.WolverPong.score += 1
-                                #sounds[1].play()
                                 sounds[4].play()
                                 self.fireBall.angle = calculate.reflectAngle(self.fireBall.rect.center, \
                                                                              self.WolverPong.rect.center, \
@@ -675,61 +659,54 @@ class Game():
                                 SCREEN.blit(self.OuterBigWhite,(0,0))
                                 SCREEN.blit(self.InnerBigWhite,(0,0))
 
-                                # AUTO MODE
                                 if self.mode == AUTO:
                                     self.batAngle = np.deg2rad(self.RayPong.angle)
-                                
                                     self.batTheta = int(np.round(self.RayPong.theta))
                                     
                                     # Get any point on ball's trajectory, In our case "3"
-                                    if(self.fireBall.pointCount == 3):
+                                    if self.fireBall.pointCount == 3:
                                         self.ballAngle = self.fireBall.angle 
-                                        
                                         self.ball[:2] = self.fireBall.rect.center
                                         
                                     # Get another point on ball's trajectory, In our case "6"    
-                                    if(self.fireBall.pointCount == 6):
-                                        
+                                    if self.fireBall.pointCount == 6:
                                         self.ball[2:] = self.fireBall.rect.center  
                                                            
                                         # Predict bat coordinates according to ball angle
-                                     
                                         self.predictedBatPoint = intersect.lineCircleIntersect(self.ball, self.ballAngle)
-                              
                                         self.predictedBatTheta=  predictAngle.predictbatangle(self.predictedBatPoint)
-                 
                                         self.batAngle = np.rad2deg(self.batAngle)
-                                 
-                                        acceleration = fuzzyAcceleration.getFuzzyAcceleration(self.batAngle, self.predictedBatTheta)
                                         
+                                        # Get the acceleration by defuzzifying 
+                                        acceleration = fuzzyAcceleration.getFuzzyAcceleration(self.batAngle, self.predictedBatTheta)
                                     
                                     # After getting the Best Fit , move Bat
-                                    if(self.fireBall.pointCount >6):
+                                    if self.fireBall.pointCount > 6:
                                         self.batAngle = int(np.rad2deg(self.batAngle))
-                                        self.RayPong.changeDirection = predictDirection.directionToPredict(self.batAngle, self.predictedBatTheta)
+                                        self.RayPong.changeDirection = predictDirection.directionToPredict(self.batAngle, \
+                                                                                                           self.predictedBatTheta)
                                         self.RayPong.speed_factor = self.RayPong.speed + acceleration
                                                                                 
-                                        # If bat has reached it's target, reset speed and acceleration 
-                                        # To avoid bat moving front and back, we use lots of If's(can be optimized) 
-                                        if(  self.RayPong.changeDirection == 0):
+                                        # If bat has reached it's target, reset speed and acceleration to avoid wobbling
+                                        if self.RayPong.changeDirection == 0:
                                             self.RayPong.speed = 1
                                             self.RayPong.speed_factor = 1
  
  
                                         self.RayPong.update(self.RayPong.changeDirection)
-                                        if(debug):
+                                        if debug:
                                             print "BAT POINTS PREDICTED : ",self.predictedBatPoint
                                             print "Current Bat Angle : ",self.batAngle,"Current Ball Angle : ",np.rad2deg(self.fireBall.angle),"Predicted Bat Angle : ",self.predictedBatAngle
+
                                     self.fireBall.pointCount += 1
                                 
                                 # Check Collision
-                                Collide = calculate.checkCollide(self.fireBall.rect.center, \
-                                                                 self.RayPong.rect.center, \
-                                                                 np.deg2rad(self.RayPong.angle),120,self.fireBall.angle)
-    
+#                                Collide = pygame.sprite.collide_rect(self.fireBall, self.RayPong)
+                                Collide = calculate.checkCollide(self.fireBall.rect.center, self.RayPong.rect.center, \
+                                                                 np.deg2rad(self.RayPong.angle), self.RayPong.batdimy, \
+                                                                 self.fireBall.angle)
     
                                 if Collide:
-                                    # Increase Score by 1
                                     self.RayPong.score += 1
                                     sounds[4].play()
                                     self.fireBall.angle = calculate.reflectAngle(self.fireBall.rect.center, \
@@ -742,32 +719,28 @@ class Game():
                                     self.fireBall.rally +=1
                                     self.aiMoveCount = 0
     
-    
                 if self.ignoreCollide > 0:
                     ignoreCollide -= 1
-                
                 
                 # When AI is idle, move to angle opposite to player bat (To play efficiently)  
                 if self.MULTIPLAYER:
                     if self.mode == AUTO: 
-                        if(player != -1):
-                                # We have a count to make it look smooth and human Like
-                                if(self.aiMoveCount > 6):
-                                    if(self.WolverPong.angle >= 180):
-                                        self.beforePredictedBatPointAngle = self.WolverPong.angle - 180
-                                    elif(self.WolverPong.angle < 180):
-                                        self.beforePredictedBatPointAngle = self.WolverPong.angle + 180
-                                        
-                                    self.RayPong.speed_factor = 1.0
-                                    self.RayPong.changeDirection = predictDirection.directionToPredict(self.RayPong.angle, self.beforePredictedBatPointAngle)
-                                    if(  self.RayPong.changeDirection == 0):
-                                            self.RayPong.speed = 1
-                                            self.RayPong.speed_factor = 1
-                                    self.RayPong.update(self.RayPong.changeDirection)
-                               
-                            
-                     
-                            
+                        if player != -1:
+                            # We have a count to make it look smooth and human Like
+                            if self.aiMoveCount > 6:
+                                if self.WolverPong.angle >= 180:
+                                    self.beforePredictedBatPointAngle = self.WolverPong.angle - 180
+                                elif self.WolverPong.angle < 180:
+                                    self.beforePredictedBatPointAngle = self.WolverPong.angle + 180
+                                    
+                                self.RayPong.speed_factor = 1.0
+                                self.RayPong.changeDirection = predictDirection.directionToPredict(self.RayPong.angle, \
+                                                                                                   self.beforePredictedBatPointAngle)
+                                if self.RayPong.changeDirection == 0:
+                                        self.RayPong.speed = 1
+                                        self.RayPong.speed_factor = 1
+
+                                self.RayPong.update(self.RayPong.changeDirection)
                          
                 # GameOver
                 if self.ballsLeft == 0:
@@ -778,23 +751,23 @@ class Game():
                         winner = -1
                     else:
                         winner = 0
+                        
                     GameOver.gameOver(SCREEN, SCREEN_H, SCREEN_W,winner)
                     '''Once the game is over, and gameover screen is closed: need to go back to game.stopped state
                     '''
                     self.gamestate = STOPPED
                     sounds[0].play()
-                    self.global_param_reset()
+                    self.resetGame()
             
-                
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
 
-
-            logginstring = str(self.fireBall.rect.center)  + str(self.WolverPong.rect.center)+ str(self.WolverPong.theta)
-            log.writeLog(logginstring)
             pygame.display.flip()
             clock.tick(100)  # milliseconds passed since last frame
 
+            # Logging
+            logString = str(self.fireBall.rect.center)  + str(self.WolverPong.rect.center)+ str(self.WolverPong.theta)
+            log.writeLog(logString)
 
  
 if __name__ == "__main__":
