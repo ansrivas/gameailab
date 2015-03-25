@@ -1,8 +1,6 @@
 import math
-from sympy import *
-from sympy.geometry import *
 from Game.constants import * 
-#from numba import autojit
+
 
 debug = False
 
@@ -27,35 +25,10 @@ class FindIntersection():
         # Bat Angles
         self.angle1 = 0.0
         self.angle2 = 0.0
-        self.cl = Circle(Point(SCREEN_W/2,SCREEN_H/2),320)
-        #self.test =  autojit()(self.lineCircleIntersect)
-    
-     
-    
-    def lineCircleIntersection(self, (ballx1,bally1,ballx2,bally2)):
-        
-        l = Line(Point(ballx1,bally1),Point(ballx2,bally2))
-        
-        setofpoints = intersection(self.cl,l)
-        
-        
-        #points ballx2, bally2 is the next set of point being generated at t+1-th iteration
-        #so ball is moving in this direction
-        return self.findClosestPoint(setofpoints,(ballx2,bally2))
-     
-           
-    def findClosestPoint(self,setofpoints,(ballx2,bally2)):
-        p1,p2 = setofpoints[0],setofpoints[1]
-        
-        d1 = ((p1.x - ballx2)**2 + (p1.y - bally2)**2)**0.5
-        d2 = ((p2.x - ballx2)**2 + (p2.y - bally2)**2)**0.5
-        
-        if(d1<d2):
-            return (N(p1.x),N(p1.y))
-        else:
-            return (N(p2.x),N(p2.y))
 
      
+    
+
         
     def findQuadraticParameters(self, slope, intermediateValue):        
         # find "a" 
