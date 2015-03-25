@@ -4,7 +4,7 @@ Created on Mar 18, 2015
 @author: ankur
 '''
 import logging 
-
+import time
 class Output:
     def __init__(self):
         ''' 
@@ -21,14 +21,16 @@ class Output:
         
         # create a logger format
         
-        #formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        #handler.setFormatter(formatter)
+        # formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # handler.setFormatter(formatter)
         
         # add the handlers to the logger
         self.logger.addHandler(handler)
     
     
-    def writeLog(self,msg):
+    def writeLog(self, msg):
+        t = time.strftime('%X %x')
+        msg = str(t) + " : " + msg
         self.logger.info(msg)
         
-#logger.info('Hello baby')
+# logger.info('Hello baby')

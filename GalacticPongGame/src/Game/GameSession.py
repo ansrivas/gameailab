@@ -510,7 +510,7 @@ class Game():
 #        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
 
         while running:
-
+            
             # Change value if single player
             if not self.MULTIPLAYER:
                 player = 1
@@ -789,7 +789,9 @@ class Game():
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
 
-    
+
+            logginstring = str(self.fireBall.rect.center)  + str(self.WolverPong.rect.center)+ str(self.WolverPong.theta)
+            log.writeLog(logginstring)
             pygame.display.flip()
             clock.tick(100)  # milliseconds passed since last frame
 
