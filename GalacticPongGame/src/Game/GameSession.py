@@ -17,6 +17,7 @@ import pickle
 
 
 SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
+global log
 
 '''just using a naive global logger
 '''
@@ -793,7 +794,6 @@ def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
     return
  
 if __name__ == "__main__":
-    global log
     log = Output()
     
     g = Game()
