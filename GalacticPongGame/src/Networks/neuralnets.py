@@ -66,7 +66,8 @@ class CNeuralNet:
      
     def loadTrainedModel(self):
         """
-        call this function to load the trained model
+        call this function to load the trained model  
+        Please call loadTrainedModel once, before calling predict, so as to load the trained model and then predict things :)       
         """
                 
         try:

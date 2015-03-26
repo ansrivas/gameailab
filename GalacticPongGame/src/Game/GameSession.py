@@ -784,11 +784,10 @@ class Game:
 
 
 def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
-    log.filename = filename
     
     net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
-    net.createTrainingData(log.filename, inputdim=inp, outputdim=output)
-    net.train(log.filename,trainepochs=100)
+    net.createTrainingData(filename, inputdim=inp, outputdim=output)
+    net.train(filename,trainepochs=1000)
     #data = [asjfajhdasjn]
     #print net.predict(inputtopredict)
     return
@@ -800,4 +799,5 @@ if __name__ == "__main__":
     g.Run()
     
     
-    prediction(inp=5, hidden=50, output=2, filename="./outdata/output_20_01_06.log")
+    #this code part should be executed separate from g.run, either run this or run the game. 
+    #prediction(inp=5, hidden=50, output=2, filename="./outdata/output_21_11_57.log")
