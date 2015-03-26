@@ -10,12 +10,17 @@ from DirectionPrediction import predictDirection as predictAiDirection
 from FuzzyController import fuzzyControl as fuzzy
 from Game import GameOver
 from logger.CLogger import Output
+from Networks import neuralnets as NN
+import pickle
+
+
+
 
 SCREEN = pygame.display.set_mode(RESOLUTION, 0, 32)
 
 '''just using a naive global logger
 '''
-log = Output()
+log = None
 debug = False
 POINTCOUNT =0
 #  Playback sound
@@ -341,7 +346,7 @@ class Game():
 
            
     def generateNbombsinCircle(self,num=3):
-        import pickle
+        
         with open('points.txt', 'rb') as f:
             self.points = pickle.load(f)
     
@@ -482,7 +487,7 @@ class Game():
                 
                 
     def Run(self):
-#        assert 0, self.WolverPong.changeDirection
+        global log
         #class which calculates the collision and reflection
         calculate = refcol.CReflectCollid()
         
@@ -507,7 +512,7 @@ class Game():
         clock = pygame.time.Clock()
         SCREEN.blit(self.background,(0,0))
         st = "Game starts in : "
-#        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
+        self.delayGame(WolverScore=0, RayScore=0, ballsLeft=0,st=st)
 
         while running:
             
@@ -662,6 +667,7 @@ class Game():
                                                                              self.WolverPong.rect.center, \
                                                                              np.deg2rad(self.WolverPong.angle), \
                                                                              self.fireBall.angle)
+                                
                                 ignoreCollide = 20
                                 Collide = False
                                 player = -1
@@ -788,9 +794,27 @@ class Game():
                 
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
-
-
-            logginstring = str(self.fireBall.rect.center)  + str(self.WolverPong.rect.center)+ str(self.WolverPong.theta)
+    
+            
+            if player == 1:
+                    logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
+                                                        self.fireBall.angle , \
+                                                        self.fireBall.speedx , \
+                                                        self.fireBall.speedy , \
+                                                        self.WolverPong.rect.centerx, \
+                                                        self.WolverPong.rect.centery, \
+                                                        self.WolverPong.theta, \
+                                                        self.WolverPong.speed)
+            else:
+                    logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
+                                                        self.fireBall.angle, \
+                                                        self.fireBall.speedx , \
+                                                        self.fireBall.speedy , \
+                                                        self.RayPong.rect.centerx, \
+                                                        self.RayPong.rect.centery, \
+                                                        self.RayPong.theta, \
+                                                        self.RayPong.speed)
+            
             log.writeLog(logginstring)
             pygame.display.flip()
             clock.tick(100)  # milliseconds passed since last frame
@@ -798,6 +822,23 @@ class Game():
 
  
 if __name__ == "__main__":
+    global log
+    log = Output()
+    
+    inp = 5
+    hidden = 20
+    output = 2
+    
+    
+    
     g = Game()
     g.Run()
- 
+    #log.filename = "output_12_58_10.log"
+    
+    #net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
+    #net.createTrainingData(log.filename, inputdim=inp, outputdim=output)
+    #net.train(log.filename,trainepochs=100)
+    
+    #print net.predict(data1),net.predict(data2),net.predict(data3),net.predict(data4)
+        
+    

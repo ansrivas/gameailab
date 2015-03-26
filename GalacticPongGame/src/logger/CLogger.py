@@ -15,22 +15,16 @@ class Output:
         self.logger.setLevel(logging.INFO)
 
         # create a file handler
-        
-        handler = logging.FileHandler('outputdata.log')
+        self.filename = time.strftime('%H_%M_%S')
+        self.filename = "output_"+str(self.filename) + ".log"
+         
+        handler = logging.FileHandler(self.filename)
         handler.setLevel(logging.INFO)
-        
-        # create a logger format
-        
-        # formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        # handler.setFormatter(formatter)
-        
-        # add the handlers to the logger
+
         self.logger.addHandler(handler)
     
     
     def writeLog(self, msg):
-        t = time.strftime('%X %x')
-        msg = str(t) + " : " + msg
+
         self.logger.info(msg)
         
-# logger.info('Hello baby')
