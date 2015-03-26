@@ -767,15 +767,16 @@ class Game:
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
           
-            logginstring = "{},{},{},{},{},{},{},{},{}, {}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
-                                                        self.fireBall.angle , \
-                                                        self.fireBall.speedx , \
-                                                        self.fireBall.speedy , \
-                                                        self.WolverPong.rect.centerx, \
-                                                        self.WolverPong.rect.centery, \
-                                                        self.WolverPong.theta, \
-                                                        self.WolverPong.speed, \
-                                                        self.WolverPong.changeDirection)
+            logginstring = "{},{},{},{},{},{},{},{},{}, {}".format(self.fireBall.rect.center[0], \
+                                                                    self.fireBall.rect.center[1], \
+                                                                    self.fireBall.angle , \
+                                                                    self.fireBall.speedx , \
+                                                                    self.fireBall.speedy , \
+                                                                    self.WolverPong.rect.centerx, \
+                                                                    self.WolverPong.rect.centery, \
+                                                                    self.WolverPong.theta, \
+                                                                    self.WolverPong.speed, \
+                                                                    self.WolverPong.changeDirection)
 
             
             log.writeLog(logginstring)
@@ -783,10 +784,11 @@ class Game:
             clock.tick(100)  # milliseconds passed since last frame
 
 
-def prediction(input,hidden,output, filename="./outdata/output_20_01_06.log"):
-    net = NN.CNeuralNet(inputneurons=input,hiddenneurons=hidden,outputneurons=output)
-    net.createTrainingData(filename, inputdim=input, outputdim=output)
-    net.train(filename,trainepochs=100)
+def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
+    
+    net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
+    net.createTrainingData(filename, inputdim=inp, outputdim=output)
+    net.train(filename,trainepochs=1)
     
     #data = [asjfajhdasjn]
     #print net.predict(inputtopredict)
@@ -797,8 +799,7 @@ if __name__ == "__main__":
     global log
     log = Output()
     
-    g = Game()
-    g.Run()
-    
-    
-    prediction(input=5, hidden=15, output=3, filename="./outdata/output_20_01_06.log")
+#    g = Game()
+#    g.Run()
+
+    prediction(inp=5, hidden=15, output=3, filename="./outdata/output_00_49_30.log")
