@@ -820,6 +820,15 @@ class Game():
             clock.tick(100)  # milliseconds passed since last frame
 
 
+def prediction(inp,hidden,output):
+    log.filename = "output_15_57_58.log"
+    
+    net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
+    net.createTrainingData(log.filename, inputdim=inp, outputdim=output)
+    net.train(log.filename,trainepochs=100)
+    #data = [asjfajhdasjn]
+    #print net.predict(inputtopredict)
+    return
  
 if __name__ == "__main__":
     global log
@@ -828,17 +837,9 @@ if __name__ == "__main__":
     inp = 5
     hidden = 20
     output = 2
-    
-    
-    
+       
     g = Game()
     g.Run()
-    #log.filename = "output_12_58_10.log"
     
-    #net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
-    #net.createTrainingData(log.filename, inputdim=inp, outputdim=output)
-    #net.train(log.filename,trainepochs=100)
-    
-    #print net.predict(data1),net.predict(data2),net.predict(data3),net.predict(data4)
-        
+   
     
