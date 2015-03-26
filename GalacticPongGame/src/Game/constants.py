@@ -10,16 +10,22 @@ numStars = 100
 
 # Ring Radius
 RADIUS = 320
+RING_CENTER = SCREEN_W/2, SCREEN_H/2
 
 # Initial number of balls that game starts with
-TOTAL_BALLS = 10
+TOTAL_BALLS = 5
+
+DEFAULT_BAT_SPEED = 1
+DEFAULT_BALL_SPEED = 2
+# Increase Angle
+DEFAULT_INCREASE_ANGLE = 2
 
 #A few RGB color values
-WHITE = (255,255,255)
-BLACK = (0,0,0)
-BLUE = (0,255,255)
-RED = (255,0,0)
-SNOW = (205,201,201)
-PALEGREEN = (152,251,152)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 255, 255)
+RED = (255, 0, 0)
+SNOW = (205, 201, 201)
+PALEGREEN = (152, 251, 152)
 
 RUNNING, STOPPED, PAUSED, RESET, MANUAL, AUTO = 1, 2, 3, 4, 5, 6

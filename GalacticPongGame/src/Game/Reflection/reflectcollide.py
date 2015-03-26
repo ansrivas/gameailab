@@ -1,6 +1,6 @@
 import numpy as np, math
 
-class CReflectCollid():
+class CReflectCollid:
     def __init__(self):
         pass
     
