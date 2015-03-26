@@ -13,7 +13,7 @@ RADIUS = 320
 RING_CENTER = SCREEN_W/2, SCREEN_H/2
 
 # Initial number of balls that game starts with
-TOTAL_BALLS = 5
+TOTAL_BALLS = 50
 
 DEFAULT_BAT_SPEED = 1
 DEFAULT_BALL_SPEED = 2

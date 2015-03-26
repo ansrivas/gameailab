@@ -12,7 +12,7 @@ import pickle ,numpy as np
 from pybrain.datasets.supervised import SupervisedDataSet
 
 class CNeuralNet:
-    def __init__(self,learningrate = 0.01,inputneurons = 2,hiddenneurons = 5,outputneurons = 2,testondata= True):
+    def __init__(self,learningrate = 0.01,inputneurons = 2,hiddenneurons = 50,outputneurons = 2,testondata= True):
         """
         Neural networks class
         assign a learning rate of your choice , default is 0.01
@@ -58,32 +58,35 @@ class CNeuralNet:
         #if(self.validation):
         #    self.trainer.testOnData()
         filename = filename + "_learned"
-        f = open(filename, 'w')
+        f = open(filename, 'wb')
         pickle.dump(self.mlpnetwork, f)
         f.close()   
 
         
-        
-    def predict(self,d):
+     
+    def loadTrainedModel(self):
         """
+        call this function to load the trained model
+        """
+                
+        try:
+            f = open('rb')
+            self.mlpnetwork = pickle.load(f)
+            f.close()
+        except:
+            raise Exception("File not found, or something happened, i dont know")
+            
+            
+    def predict(self,learnedfile,d):
+        """
+        Please call loadTrainedModel once, before calling predict, so as to load the trained model and then predict things :)
+        
         d = input data which is to be predicted on a given trained model
         if you trained the model earlier and want to reuse it
         """
-         
-        
-        #options to save the current learned model as well and read it in the beginning 
-        try:
-            f = open('_learned_model_on_vivekdata', 'rb')
-            self.learnedNetwork = pickle.load(f)
-            f.close()
-        except:
-            pass
-            # f = open('_learned', 'w')
-            #pickle.dump(self.mlpnetwork, f)
-            #f.close()
-        
-            
+                    
         return self.mlpnetwork.activate(d)
+    
     
     def createTrainingData(self,name,inputdim, outputdim):
         """

@@ -452,7 +452,7 @@ class Game:
         """ Reset entire game state """
 
         self._global_param_reset()
-        self.gamestate = None
+        #self.gamestate = None
         self.MULTIPLAYER = True
 
         self.WolverPong.resetbat(180)
@@ -760,15 +760,14 @@ class Game:
                     GameOver.gameOver(SCREEN, SCREEN_H, SCREEN_W,winner)
                     '''Once the game is over, and gameover screen is closed: need to go back to game.stopped state
                     '''
-                    self.gamestate = STOPPED
                     sounds[0].play()
                     self.resetGame()
+                    self.gamestate = STOPPED
             
             self.render_score_circles()
             self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
           
-            if player == 1:
-                    logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
+            logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
                                                         self.fireBall.angle , \
                                                         self.fireBall.speedx , \
                                                         self.fireBall.speedy , \
@@ -776,15 +775,7 @@ class Game:
                                                         self.WolverPong.rect.centery, \
                                                         self.WolverPong.theta, \
                                                         self.WolverPong.speed)
-            else:
-                    logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], self.fireBall.rect.center[1], \
-                                                        self.fireBall.angle, \
-                                                        self.fireBall.speedx , \
-                                                        self.fireBall.speedy , \
-                                                        self.RayPong.rect.centerx, \
-                                                        self.RayPong.rect.centery, \
-                                                        self.RayPong.theta, \
-                                                        self.RayPong.speed)
+
             
             log.writeLog(logginstring)
             pygame.display.flip()
@@ -806,11 +797,11 @@ if __name__ == "__main__":
     log = Output()
     
     inp = 5
-    hidden = 20
+    hidden = 50
     output = 2
        
     g = Game()
     g.Run()
     
-   
+    #prediction(inp,hidden,output)
     

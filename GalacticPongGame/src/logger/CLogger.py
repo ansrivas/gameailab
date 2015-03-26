@@ -16,7 +16,7 @@ class Output:
 
         # create a file handler
         self.filename = time.strftime('%H_%M_%S')
-        self.filename = "output_"+str(self.filename) + ".log"
+        self.filename = "./outdata/output_"+str(self.filename) + ".log"
          
         handler = logging.FileHandler(self.filename)
         handler.setLevel(logging.INFO)
