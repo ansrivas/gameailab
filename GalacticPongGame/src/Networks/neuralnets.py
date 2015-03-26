@@ -4,15 +4,15 @@ Created on Mar 25, 2015
 @author: Ankur
 '''
 
-
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.supervised.trainers import BackpropTrainer
-import pickle ,numpy as np
- 
-from pybrain.datasets.supervised import SupervisedDataSet
+import pickle
+from numpy import loadtxt
+from pybrain.tools.shortcuts        import buildNetwork
+from pybrain.supervised.trainers    import BackpropTrainer
+from pybrain.datasets.supervised    import SupervisedDataSet
 
 class CNeuralNet:
-    def __init__(self,learningrate = 0.01,inputneurons = 2,hiddenneurons = 50,outputneurons = 2,testondata= True):
+    def __init__(self,learningrate = 0.1,inputneurons = 2,hiddenneurons = 50,outputneurons = 2,testondata= True, \
+                 momentum = 0.9):
         """
         Neural networks class
         assign a learning rate of your choice , default is 0.01
@@ -24,13 +24,14 @@ class CNeuralNet:
         if(hiddenneurons < inputneurons):
             raise Exception("Number of hiddenneurons can't be lesser than inputneurons")
         
-        
-        
-        
         self.learningrate = learningrate
         self.inputneurons = inputneurons
         self.hiddenneurons = hiddenneurons
         self.outputneurons = outputneurons
+
+        #momentum is the parameter to realize how efficiently the learning will get out of a local minima, 
+        #not sure what to put as an appropriate value
+        self.momentum = momentum
 
         #Construct network here
         self.mlpnetwork  = buildNetwork(self.inputneurons, self.hiddenneurons, self.outputneurons, bias=True)
@@ -39,7 +40,6 @@ class CNeuralNet:
         self.data = None
         
         self.learnedNetwork = None
-        
     
     
     def train(self,filename,trainepochs = 1000):
@@ -48,44 +48,37 @@ class CNeuralNet:
         inputdata = set of input params
         trainepochs = number of times to iterate through this dataset
         """
-        #momentum is the parameter to realize how efficiently the learning will get out of a local minima, 
-        #not sure what to put as an appropriate value
         
-        self.trainer = BackpropTrainer(self.mlpnetwork, learningrate =self.learningrate, momentum = 0.99)
-     
+        self.trainer = BackpropTrainer(self.mlpnetwork, learningrate=self.learningrate, momentum=self.momentum)
         self.trainer.trainUntilConvergence(verbose=True, dataset=self.data, maxEpochs=trainepochs)
-        #self.trainer.trainOnDataset(self.data, trainepochs)
-        #if(self.validation):
-        #    self.trainer.testOnData()
-        filename = filename + "_learned"
-        f = open(filename, 'wb')
-        pickle.dump(self.mlpnetwork, f)
-        f.close()   
-
         
-     
-    def loadTrainedModel(self):
+        fl = filename.split('.log')[0] + "_learned.pickle"
+        with open(fl, "wb") as f:
+            pickle.dump(self.mlpnetwork, f)
+        
+    def loadTrainedModel(self, pickleFile=None):
         """
         call this function to load the trained model
         """
-                
-        try:
-            f = open('rb')
+
+        if pickleFile == None:
+            # If there are many computed neural-nets, load the first one
+            from glob import glob
+            pickleFile = glob("*.pickle")[0]
+
+        assert '.pickle' in pickleFile, "Invalid Neural-Net loaded..."
+        with open(pickleFile, "rb") as f:
             self.mlpnetwork = pickle.load(f)
-            f.close()
-        except:
-            raise Exception("File not found, or something happened, i dont know")
             
             
-    def predict(self,learnedfile,d):
+    def predict(self,learnedfile, testData):
         """
-        Please call loadTrainedModel once, before calling predict, so as to load the trained model and then predict things :)
-        
-        d = input data which is to be predicted on a given trained model
+        testData = input data which is to be predicted on a given trained model
         if you trained the model earlier and want to reuse it
         """
-                    
-        return self.mlpnetwork.activate(d)
+
+        assert (self.trainer != None) , "Train the model before you predict with it..."                    
+        return self.mlpnetwork.activate(testData)
     
     
     def createTrainingData(self,name,inputdim, outputdim):
@@ -96,15 +89,8 @@ class CNeuralNet:
         """
         
         self.data = SupervisedDataSet(inputdim,outputdim)
-        temp = np.loadtxt(name, delimiter=",")
+        textFile = loadtxt(name, delimiter=",")
         
-        for i in temp:
-            self.data.addSample(i[:5], i[7:])
-
-        
-        
-
-        
-        
-        
+        for line in textFile:
+            self.data.addSample(line[:5], line[7:])
         
