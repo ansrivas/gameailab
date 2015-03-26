@@ -783,9 +783,6 @@ class Game:
 
 
 def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
-    global log
-    log = Output()
-    
     log.filename = filename
     
     net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
@@ -796,7 +793,11 @@ def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
     return
  
 if __name__ == "__main__":
+    global log
+    log = Output()
+    
     g = Game()
     g.Run()
+    
     
     prediction(inp=5, hidden=50, output=2, filename="./outdata/output_20_01_06.log")
