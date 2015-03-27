@@ -4,7 +4,7 @@ Created on Mar 25, 2015
 @author: Ankur
 '''
 
-import pickle
+import pickle,time
 from numpy import loadtxt
 from pybrain.tools.shortcuts        import buildNetwork
 from pybrain.supervised.trainers    import BackpropTrainer
@@ -52,7 +52,7 @@ class CNeuralNet:
         self.trainer = BackpropTrainer(self.mlpnetwork, learningrate=self.learningrate, momentum=self.momentum)
         self.trainer.trainUntilConvergence(verbose=True, dataset=self.data, maxEpochs=trainepochs)
         
-        fl = filename.split('.log')[0] + "_learned.pickle"
+        fl = filename.split('.log')[0] +str(time.strftime('%H_%M_%S'))+ "_learned.pickle"
         with open(fl, "wb") as f:
             pickle.dump(self.mlpnetwork, f)
         
