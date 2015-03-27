@@ -38,14 +38,14 @@ def findPointOnCircle(deg):
     return int(x),int(y)
 
 def findAngle((x, y)):
-        dy = y - SCREEN_H/2
-        dx = x - SCREEN_W/2
- 
-        angle  = -np.rad2deg(np.arctan2(dy, dx))
-        if(angle < 0):
-            angle += 360
-
-        return int(np.round(angle))
+    dy = y - SCREEN_H/2
+    dx = x - SCREEN_W/2
+    
+    angle  = -np.rad2deg(np.arctan2(dy, dx))
+    if(angle < 0):
+        angle += 360
+    
+    return int(np.round(angle))
     
 
 
