@@ -53,7 +53,13 @@ class FindIntersection():
             print "b`2 : ",b**2
             print "4ac : ",4*a*c 
             print "b`2 - 4ac : ",b**2 - 4*a*c
-        return math.sqrt(b**2 - 4*a*c)
+        
+        if (b**2 - 4*a*c) < 0:
+            res = 0
+        else:
+            res = math.sqrt(b**2 - 4*a*c)
+
+        return res 
         
     
     def lineCircleIntersect(self, (ballx1,bally1,ballx2,bally2), ballAngle):
