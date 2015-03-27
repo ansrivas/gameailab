@@ -65,22 +65,23 @@ class Pong(pygame.sprite.Sprite):
 
         return int(x),int(y)
     
-    def update(self, changeDirection):
-        if self.speed < self.maxSpeed:
-            self.speed *= self.speed_factor
-        else:
-            self.speed = self.maxSpeed
-        
-        if changeDirection > 0:
-            self.theta += self.speed
-        elif changeDirection < 0:
-            if self.theta > 0:
-                self.theta -= self.speed
+    def update(self, changeDirection=None):
+        if changeDirection != None:
+            if self.speed < self.maxSpeed:
+                self.speed *= self.speed_factor
             else:
-                self.theta = 360 - self.speed
+                self.speed = self.maxSpeed
             
-        if self.theta >= 360:
-            self.theta = 0
+            if changeDirection > 0:
+                self.theta += self.speed
+            elif changeDirection < 0:
+                if self.theta > 0:
+                    self.theta -= self.speed
+                else:
+                    self.theta = 360 - self.speed
+                
+            if self.theta >= 360:
+                self.theta = 0
         
         self.angle  = float(self.theta)
         self.rot = pygame.transform.rotate(self.image, self.angle)
@@ -248,7 +249,7 @@ class SpriteSheet(object):
 class Game:
     """ Main Class that contains Game related methods """
     
-    def __init__(self):
+    def __init__(self, neuralNetPickle=None):
         """ Initialize the game state """
         # Sound Initialization
         pygame.mixer.pre_init(44100, -16, 2, 4096)
@@ -336,7 +337,10 @@ class Game:
         '''call this just once so as to randomly initialize obstacles'''
         self.generateNbombsinCircle(self.numofBombs)
 
-     
+        self.inputData = None
+        self.outputData = None
+        self.neuralNetPickle = neuralNetPickle
+        
     def resetBombLocation(self):
         """ reset all the bomb location after the game is reset """
 
@@ -347,7 +351,6 @@ class Game:
         for p in points:
             bomb = CBombs(p)
             self.bomb_group.add(bomb) 
-
            
     def generateNbombsinCircle(self,num=3):
 
@@ -382,7 +385,6 @@ class Game:
         with open('points.txt', 'wb') as f:
             pickle.dump(listofpoints, f)
         '''        
-        
         
     def setCircles(self, alpha, color=(255,165,0,255), width=0, radius=50, pos=(100, 100), \
                         surfacePos=(200, 200), fill=BLACK, colorkey=BLACK):
@@ -432,7 +434,6 @@ class Game:
         if self.MULTIPLAYER:
             SCREEN.blit(self.OuterWhite, (980,100,100,100))
             SCREEN.blit(self.InnerWhite, (980,100,100,100))
-
      
     def delayGame(self, WolverScore, RayScore, ballsLeft, st, seconds=3):
         """ Delay the game (in seconds) for a certain given time (Default: 3) """
@@ -463,7 +464,6 @@ class Game:
         #call self.fireballreset in the end of this resetting sequence only
         self.fireBall.resetBall()
         
-
     def render_pause_screen(self):
         renderPause = self.headingFont.render("Game Paused: press Space Bar to resume", True, (205,205,205))
         SCREEN.blit(renderPause,(380.,100.))
@@ -493,7 +493,9 @@ class Game:
                 
     def Run(self):
         """ Run the game """
+        
         global log
+        
         #class which calculates the collision and reflection
         calculate = refcol.CReflectCollid()
         
@@ -509,11 +511,16 @@ class Game:
         #class to predict acceleration - Fuzzy
         fuzzyAcceleration = fuzzy.Fuzzy()
         
+        # Class object for Neural Network
+        net = NN.CNeuralNet()
+        if self.neuralNetPickle != None:
+            net.mlpnetwork = net.loadTrainedModel(self.neuralNetPickle)
+        
         # Play Background Music
         sounds[0].set_volume(MED_VOL)
         sounds[0].play()
     
-        #Player turns - 1, -1 for WolverPong and RayPong respectively
+        # Player turns - 1, -1 for WolverPong and RayPong respectively
         player = 1
         running = True
         clock = pygame.time.Clock()
@@ -624,11 +631,11 @@ class Game:
     
                 # Change turn if player loses the ball
                 player, self.ballsLeft = self.fireBall.update(player, self.ballsLeft)
-                
                
                 if self.ballsLeft > 0:
                     #If collided, don't check for collision for next few iterations
                     if self.ignoreCollide == 0:
+
                         # WolverPong's Turn
                         if player == 1:
                             # Revert count after change in turn
@@ -650,7 +657,7 @@ class Game:
                                                                              self.WolverPong.rect.center, \
                                                                              np.deg2rad(self.WolverPong.angle), \
                                                                              self.fireBall.angle)
-                                
+
                                 ignoreCollide = 20
                                 Collide = False
                                 player = -1
@@ -663,73 +670,95 @@ class Game:
                                 # Draw Background Circle
                                 SCREEN.blit(self.OuterBigWhite,(0,0))
                                 SCREEN.blit(self.InnerBigWhite,(0,0))
-
-                                if self.mode == AUTO:
+                        
+                            if self.mode == AUTO:
+                                if self.neuralNetPickle != None:
+                                    self.inputData = [
+                                                        self.fireBall.rect.center[0],
+                                                        self.fireBall.rect.center[1],
+                                                        self.fireBall.angle,
+                                                        self.fireBall.speedx,
+                                                        self.fireBall.speedy,
+                                                     ]
+                                    self.outputData = net.predict(self.inputData)
+                        
+                                    self.RayPong.theta = self.outputData[0]
+                                    self.RayPong.speed = self.outputData[1]
+                        
+                                    self.RayPong.theta = int(np.round(self.RayPong.theta))
+                                    self.RayPong.angle = np.deg2rad(self.RayPong.theta)
+                                    print self.RayPong.theta,"angle is---------"
+                                    print self.RayPong.angle , "angle ist----------"
+                                    self.RayPong.update()
+                        
+                                else:  # If Fuzzy or something...
+                        
                                     self.batAngle = np.deg2rad(self.RayPong.angle)
                                     self.batTheta = int(np.round(self.RayPong.theta))
-                                    
+                        
                                     # Get any point on ball's trajectory, In our case "3"
                                     if self.fireBall.pointCount == 3:
-                                        self.ballAngle = self.fireBall.angle 
+                                        self.ballAngle = self.fireBall.angle
                                         self.ball[:2] = self.fireBall.rect.center
-                                        
-                                    # Get another point on ball's trajectory, In our case "6"    
+                        
+                                    # Get another point on ball's trajectory, In our case "6"
                                     if self.fireBall.pointCount == 6:
-                                        self.ball[2:] = self.fireBall.rect.center  
-                                                           
+                                        self.ball[2:] = self.fireBall.rect.center
+                        
                                         # Predict bat coordinates according to ball angle
                                         self.predictedBatPoint = intersect.lineCircleIntersect(self.ball, self.ballAngle)
                                         self.predictedBatTheta=  predictAngle.predictbatangle(self.predictedBatPoint)
                                         self.batAngle = np.rad2deg(self.batAngle)
-                                        
-                                        # Get the acceleration by defuzzifying 
+                        
+                                        # Get the acceleration by defuzzifying
                                         acceleration = fuzzyAcceleration.getFuzzyAcceleration(self.batAngle, self.predictedBatTheta)
-                                    
+                        
                                     # After getting the Best Fit , move Bat
                                     if self.fireBall.pointCount > 6:
                                         self.batAngle = int(np.rad2deg(self.batAngle))
                                         self.RayPong.changeDirection = predictDirection.directionToPredict(self.batAngle, \
                                                                                                            self.predictedBatTheta)
                                         self.RayPong.speed_factor = self.RayPong.speed + acceleration
-                                                                                
+                        
                                         # If bat has reached it's target, reset speed and acceleration to avoid wobbling
                                         if self.RayPong.changeDirection == 0:
                                             self.RayPong.speed = 1
                                             self.RayPong.speed_factor = 1
- 
- 
+                        
+                        
                                         self.RayPong.update(self.RayPong.changeDirection)
+                        
                                         if debug:
                                             print "BAT POINTS PREDICTED : ",self.predictedBatPoint
                                             print "Current Bat Angle : ",self.batAngle,"Current Ball Angle : ",np.rad2deg(self.fireBall.angle),"Predicted Bat Angle : ",self.predictedBatAngle
-
+                        
                                     self.fireBall.pointCount += 1
-                                
-                                # Check Collision
-#                                Collide = pygame.sprite.collide_rect(self.fireBall, self.RayPong)
-                                Collide = calculate.checkCollide(self.fireBall.rect.center, self.RayPong.rect.center, \
-                                                                 np.deg2rad(self.RayPong.angle), self.RayPong.batdimy, \
-                                                                 self.fireBall.angle)
-    
-                                if Collide:
-                                    self.RayPong.score += 1
-                                    sounds[4].play()
-                                    self.fireBall.angle = calculate.reflectAngle(self.fireBall.rect.center, \
-                                                                                 self.RayPong.rect.center, \
-                                                                                 np.deg2rad(self.RayPong.angle), \
-                                                                                 self.fireBall.angle)
-                                    ignoreCollide = 20
-                                    Collide = False
-                                    player = 1
-                                    self.fireBall.rally +=1
-                                    self.aiMoveCount = 0
+                        
+#                                 Check Collision
+#                                 Collide = pygame.sprite.collide_rect(self.fireBall, self.RayPong)
+                            Collide = calculate.checkCollide(self.fireBall.rect.center, self.RayPong.rect.center, \
+                                                             np.deg2rad(self.RayPong.angle), self.RayPong.batdimy, \
+                                                             self.fireBall.angle)
+                    
+                            if Collide:
+                                self.RayPong.score += 1
+                                sounds[4].play()
+                                self.fireBall.angle = calculate.reflectAngle(self.fireBall.rect.center, \
+                                                                             self.RayPong.rect.center, \
+                                                                             np.deg2rad(self.RayPong.angle), \
+                                                                             self.fireBall.angle)
+                                ignoreCollide = 20
+                                Collide = False
+                                player = 1
+                                self.fireBall.rally +=1
+                                self.aiMoveCount = 0
     
                 if self.ignoreCollide > 0:
                     ignoreCollide -= 1
                 
                 # When AI is idle, move to angle opposite to player bat (To play efficiently)  
                 if self.MULTIPLAYER:
-                    if self.mode == AUTO: 
+                    if self.mode == AUTO and not self.neuralNetPickle: 
                         if player != -1:
                             # We have a count to make it look smooth and human Like
                             if self.aiMoveCount > 6:
@@ -763,11 +792,10 @@ class Game:
                     sounds[0].play()
                     self.resetGame()
                     self.gamestate = STOPPED
-            
-            self.render_score_circles()
-            self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
-          
-            logginstring = "{},{},{},{},{},{},{},{},{}, {}".format(self.fireBall.rect.center[0], \
+                    
+                
+                #log everything only as long as game is running    
+                logginstring = "{},{},{},{},{},{},{},{},{}".format(self.fireBall.rect.center[0], \
                                                                     self.fireBall.rect.center[1], \
                                                                     self.fireBall.angle , \
                                                                     self.fireBall.speedx , \
@@ -775,20 +803,23 @@ class Game:
                                                                     self.WolverPong.rect.centerx, \
                                                                     self.WolverPong.rect.centery, \
                                                                     self.WolverPong.theta, \
-                                                                    self.WolverPong.speed, \
-                                                                    self.WolverPong.changeDirection)
+                                                                    self.WolverPong.speed)
 
             
-            log.writeLog(logginstring)
+                log.writeLog(logginstring)
+            self.render_score_circles()
+            self.renderScores(self.ballsLeft, self.WolverPong.score, self.RayPong.score)
+          
+
             pygame.display.flip()
             clock.tick(100)  # milliseconds passed since last frame
 
-
 def prediction(inp,hidden,output, filename="./outdata/output_20_01_06.log"):
     
+#    from Networks import neuralnets as NN
     net = NN.CNeuralNet(inputneurons=inp,hiddenneurons=hidden,outputneurons=output)
     net.createTrainingData(filename, inputdim=inp, outputdim=output)
-    net.train(filename,trainepochs=1)
+    net.train(filename,trainepochs=10)
     
     #data = [asjfajhdasjn]
     #print net.predict(inputtopredict)
@@ -799,7 +830,8 @@ if __name__ == "__main__":
     global log
     log = Output()
     
-#    g = Game()
-#    g.Run()
+    #g = Game(neuralNetPickle="./outdata/output_21_11_57_learned.pickle")
+    g = Game(neuralNetPickle=None)
+    g.Run()
 
-    prediction(inp=5, hidden=15, output=3, filename="./outdata/output_00_49_30.log")
+    #prediction(inp=5, hidden=15, output=2, filename="./outdata/output_21_11_57.log")

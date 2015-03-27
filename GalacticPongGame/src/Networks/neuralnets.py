@@ -21,8 +21,7 @@ class CNeuralNet:
         outputneurons = output dimension of your data
         testondata = If you want to print out the performance of your neural net, defaults to true
         """
-        if(hiddenneurons < inputneurons):
-            raise Exception("Number of hiddenneurons can't be lesser than inputneurons")
+        assert (hiddenneurons > inputneurons), "Number of hiddenneurons can't be lesser than inputneurons"
         
         self.learningrate = learningrate
         self.inputneurons = inputneurons
@@ -35,6 +34,7 @@ class CNeuralNet:
 
         #Construct network here
         self.mlpnetwork  = buildNetwork(self.inputneurons, self.hiddenneurons, self.outputneurons, bias=True)
+        self.mlpnetwork.sortModules()
         self.trainer = None
         self.validation = testondata
         self.data = None
@@ -70,19 +70,21 @@ class CNeuralNet:
         assert '.pickle' in pickleFile, "Invalid Neural-Net loaded..."
         with open(pickleFile, "rb") as f:
             self.mlpnetwork = pickle.load(f)
+        
+        return self.mlpnetwork
             
             
-    def predict(self,learnedfile, testData):
+    def predict(self, testData):
         """
         testData = input data which is to be predicted on a given trained model
         if you trained the model earlier and want to reuse it
         """
 
-        assert (self.trainer != None) , "Train the model before you predict with it..."                    
+#        assert (self.trainer != None) , "Train the model before you predict with it..."                    
         return self.mlpnetwork.activate(testData)
     
     
-    def createTrainingData(self,name,inputdim, outputdim):
+    def createTrainingData(self,filename,inputdim, outputdim):
         """
         create training data by reading our log file
         inputdim = inputdimension of data
@@ -90,8 +92,8 @@ class CNeuralNet:
         """
         
         self.data = SupervisedDataSet(inputdim,outputdim)
-        textFile = loadtxt(name, delimiter=",")
+        textFile = loadtxt(filename, delimiter=",")
         
         for line in textFile:
-            self.data.addSample(line[:5], line[7:])
+            self.data.addSample(line[:inputdim], line[-outputdim:])
         

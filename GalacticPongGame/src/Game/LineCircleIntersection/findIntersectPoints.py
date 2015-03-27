@@ -54,10 +54,7 @@ class FindIntersection():
             print "4ac : ",4*a*c 
             print "b`2 - 4ac : ",b**2 - 4*a*c
         
-        if (b**2 - 4*a*c) < 0:
-            res = 0
-        else:
-            res = math.sqrt(b**2 - 4*a*c)
+        res = math.sqrt(b**2 - 4*a*c)
 
         return res 
         
