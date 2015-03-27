@@ -63,9 +63,9 @@ class CNeuralNet:
         """
 
         if pickleFile == None:
-            # If there are many computed neural-nets, load the first one
+            # If there are many pre-computed neural-nets, load the first one
             from glob import glob
-            pickleFile = glob("*.pickle")[0]
+            pickleFile = glob("../Game/outdata/*.pickle")[0]
 
         assert '.pickle' in pickleFile, "Invalid Neural-Net loaded..."
         with open(pickleFile, "rb") as f:
