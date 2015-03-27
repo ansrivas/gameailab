@@ -56,6 +56,11 @@ class CNeuralNet:
         with open(fl, "wb") as f:
             pickle.dump(self.mlpnetwork, f)
         
+        err = filename.split('.log')[0] + "_validation_errors.pkl"
+        with open(err, "wb") as f:
+            pickle.dump(self.trainer.validationErrors, f)
+
+    
     def loadTrainedModel(self, pickleFile=None):
         """
         call this function to load the trained model  
