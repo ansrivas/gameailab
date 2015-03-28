@@ -11,8 +11,8 @@ from pybrain.supervised.trainers    import BackpropTrainer
 from pybrain.datasets.supervised    import SupervisedDataSet
 
 class CNeuralNet:
-    def __init__(self,learningrate = 0.1,inputneurons = 2,hiddenneurons = 50,outputneurons = 2,testondata= True, \
-                 momentum = 0.9):
+    def __init__(self,learningrate = 0.05,inputneurons = 2,hiddenneurons = 50,outputneurons = 2,testondata= True, \
+                 momentum = 0.8):
         """
         Neural networks class
         assign a learning rate of your choice , default is 0.01
@@ -50,7 +50,8 @@ class CNeuralNet:
         """
         
         self.trainer = BackpropTrainer(self.mlpnetwork, learningrate=self.learningrate, momentum=self.momentum)
-        self.trainer.trainUntilConvergence(verbose=True, dataset=self.data, maxEpochs=trainepochs)
+#        self.trainer.trainUntilConvergence(verbose=True, dataset=self.data, maxEpochs=trainepochs)
+        self.trainer.trainOnDataset(self.data, trainepochs)
         
         fl = filename.split('.log')[0] +str(time.strftime('%H_%M_%S'))+ "_learned.pickle"
         with open(fl, "wb") as f:
